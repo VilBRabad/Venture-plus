@@ -3,6 +3,8 @@ import React from 'react'
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import HomeScreen from '../Screens/HomeScreen';
 import Feather from "react-native-vector-icons/Feather"
+import UserProfileScreen from '../Screens/UserProfileScreen';
+import SaveList from '../Screens/SaveListScreen';
 
 export type RootTabParamList = {
     Home: undefined;
@@ -38,7 +40,7 @@ export default function BottomTabNavigation() {
             />
             <Tab.Screen
                 name='Profile'
-                component={HomeScreen}
+                component={UserProfileScreen}
                 options={{
                     headerShown: false,
                     tabBarIcon: ({ focused }) => (
@@ -51,7 +53,7 @@ export default function BottomTabNavigation() {
             />
             <Tab.Screen
                 name='Bookmark'
-                component={HomeScreen}
+                component={SaveList}
                 options={{
                     headerShown: false,
                     tabBarIcon: ({ focused }) => (

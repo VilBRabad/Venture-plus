@@ -1,4 +1,4 @@
-import { KeyboardAvoidingView, Dimensions, Animated, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { KeyboardAvoidingView, Dimensions, Animated, ScrollView, StyleSheet, Text, View, TouchableWithoutFeedback } from 'react-native'
 import React, { useRef } from 'react'
 import LoginForm from '../components/LoginForm';
 import RegisterForm from '../components/RegisterForm';
@@ -35,7 +35,9 @@ export default function AuthScreen() {
                 <Text style={[styles.headText, { marginBottom: 8 }]}>Sign Up Today</Text>
                 <Text style={styles.smallText}>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Magni harum iusto.</Text>
                 <View style={styles.btnContainer}>
-                    <AuthHeaderPage title='Log in' backgroundColor={loginBgInterpolate} textColor={loginTextInterpolate} />
+                    <TouchableWithoutFeedback>
+                        <AuthHeaderPage title='Log in' backgroundColor={loginBgInterpolate} textColor={loginTextInterpolate} />
+                    </TouchableWithoutFeedback>
                     <AuthHeaderPage title='Sign up' backgroundColor={signUpBgInterpolate} textColor={signUpTextInterpolate} />
                 </View>
                 <Animated.ScrollView
