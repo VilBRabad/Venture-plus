@@ -7,7 +7,6 @@
 
 import React from 'react';
 import {
-  SafeAreaView,
 } from 'react-native';
 import Navigator from './Navigations/StackNavigation';
 
