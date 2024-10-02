@@ -9,12 +9,20 @@ import React from 'react';
 import {
 } from 'react-native';
 import Navigator from './Navigations/StackNavigation';
+import {
+  QueryClientProvider,
+  QueryClient
+} from "@tanstack/react-query"
 
+
+const queryClient = new QueryClient();
 
 function App(): React.JSX.Element {
 
   return (
-    <Navigator />
+    <QueryClientProvider client={queryClient}>
+      <Navigator />
+    </QueryClientProvider>
   );
 }
 

@@ -5,10 +5,14 @@ export default function StartupGeneralScreen() {
     return (
         <ScrollView style={{ backgroundColor: "#000000" }}>
             <View style={styles.container}>
-                <Text style={{ color: "#FFFFFF" }}>General</Text>
+                {/* <Text style={{ color: "#FFFFFF" }}>General</Text> */}
                 <View style={styles.pairs}>
                     <Text style={{ color: "#AC84FF", width: '30%' }}>CIN: </Text>
                     <Text style={{ color: "#FFFFFF" }} numberOfLines={3}>U68200BR2023PTC061990</Text>
+                </View>
+                <View style={styles.pairs}>
+                    <Text style={{ color: "#AC84FF", width: '30%' }}>NIC Code: </Text>
+                    <Text style={{ color: "#FFFFFF" }} numberOfLines={3}>68200</Text>
                 </View>
                 <View style={styles.pairs}>
                     <Text style={{ color: "#AC84FF", width: '30%' }}>Company Name: </Text>
@@ -27,6 +31,10 @@ export default function StartupGeneralScreen() {
                     <Text style={{ color: "#FFFFFF" }} numberOfLines={3}>Private</Text>
                 </View>
                 <View style={styles.pairs}>
+                    <Text style={{ color: "#AC84FF", width: '30%' }}>Capital: </Text>
+                    <Text style={{ color: "#FFFFFF" }} numberOfLines={3}>₹ 100000.00</Text>
+                </View>
+                <View style={styles.pairs}>
                     <Text style={{ color: "#AC84FF", width: '30%' }}>Category: </Text>
                     <Text style={{ color: "#FFFFFF" }} numberOfLines={3}>Company limited by shares</Text>
                 </View>
@@ -42,10 +50,6 @@ export default function StartupGeneralScreen() {
                     <Text style={{ color: "#AC84FF", width: '30%' }}>Status: </Text>
                     <Text style={{ color: "#FFFFFF" }} numberOfLines={3}>Active</Text>
                 </View>
-                <View style={styles.pairs}>
-                    <Text style={{ color: "#AC84FF", width: '30%' }}>NIC Code: </Text>
-                    <Text style={{ color: "#FFFFFF" }} numberOfLines={3}>68200</Text>
-                </View>
             </View>
         </ScrollView>
     )
@@ -55,7 +59,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         width: '100%',
-        paddingVertical: 10,
+        paddingVertical: 15,
         paddingHorizontal: 15,
         backgroundColor: '#202020',
         borderRadius: 20,

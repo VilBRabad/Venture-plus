@@ -1,10 +1,58 @@
-import { Dimensions, ScrollView, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React from 'react'
+import { Dimensions, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import React, { useState } from 'react'
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons'
 import AntIcon from "react-native-vector-icons/AntDesign"
+import axios from 'axios'
+import { useMutation } from '@tanstack/react-query'
+import Snackbar from 'react-native-snackbar'
+import showError from '../utils/ServerErrorSnackbar'
 
+type NewUser = {
+    name: string;
+    email: string;
+    password: string;
+}
+
+const addUser = async (user: NewUser) => {
+    return await axios.post("http://192.168.43.37:8000/api/v1/user/register", user);
+}
 
 export default function RegisterForm() {
+
+    const [name, setName] = useState<string>("");
+    const [email, setEmail] = useState<string>("");
+    const [password, setPassword] = useState<string>("");
+
+
+    const { mutateAsync: registerUser } = useMutation({
+        mutationFn: addUser,
+        onSuccess: () => {
+            Snackbar.show({
+                text: "User register successfully",
+                backgroundColor: "#228B22"
+            });
+            setName("");
+            setEmail("");
+            setPassword("");
+        },
+        onError: (error) => {
+            showError(error);
+        }
+    });
+
+    const handleRegister = async () => {
+        if (email.trim() === "" || password.trim() === "" || name === "") {
+            console.log("error");
+            return;
+        }
+        try {
+            registerUser({ name, email, password });
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
+
     return (
         <KeyboardAvoidingView style={{ width: Dimensions.get('window').width }}>
             <View style={{ alignItems: 'center', justifyContent: 'center', gap: 18 }}>
@@ -12,18 +60,24 @@ export default function RegisterForm() {
                     placeholder='Enter name'
                     style={styles.input}
                     placeholderTextColor="#333444"
+                    value={name}
+                    onChangeText={setName}
                 />
                 <TextInput
                     placeholder='E-mail address'
                     style={styles.input}
                     keyboardType="email-address"
                     placeholderTextColor="#333444"
+                    value={email}
+                    onChangeText={setEmail}
                 />
                 <TextInput
                     placeholder='Password'
                     secureTextEntry
                     style={styles.input}
                     placeholderTextColor="#333444"
+                    value={password}
+                    onChangeText={setPassword}
                 />
             </View>
             <View style={{ marginTop: 30, width: '98%', bottom: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
@@ -43,7 +97,7 @@ export default function RegisterForm() {
                 </TouchableOpacity>
             </View>
             <View style={[styles.button, styles.normalContainer]}>
-                <TouchableOpacity style={styles.submitBtn}>
+                <TouchableOpacity style={styles.submitBtn} onPress={handleRegister}>
                     <Text style={styles.text}>Sign up</Text>
                 </TouchableOpacity>
             </View>
