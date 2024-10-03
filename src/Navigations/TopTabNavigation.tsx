@@ -1,15 +1,20 @@
 import React from 'react'
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import StartupGeneralScreen from '../Screens/StartupGeneralScreen';
+import StartupSocilaMediaScreen from "../Screens/StartupSocilaMediaScreen"
 
-type RootTopTabParamList = {
-    General: undefined;
+export type RootTopTabParamList = {
+    General: { data: ICompany };
+    Social_media: { data: ICompany };
 }
 
 const TopTab = createMaterialTopTabNavigator<RootTopTabParamList>();
 
+type TopTabNavProps = {
+    data?: ICompany
+}
 
-export default function TopTabNavigation() {
+export default function TopTabNavigation({ data }: TopTabNavProps) {
     return (
         <TopTab.Navigator
             screenOptions={{
@@ -18,7 +23,14 @@ export default function TopTabNavigation() {
                 tabBarIndicatorStyle: { backgroundColor: '#AC84FF' }
             }}
         >
-            <TopTab.Screen name="General" component={StartupGeneralScreen} />
+            <TopTab.Screen
+                name="General"
+                children={() => <StartupGeneralScreen data={data} />}
+            />
+            <TopTab.Screen
+                name="Social_media"
+                children={() => <StartupSocilaMediaScreen data={data} />}
+            />
         </TopTab.Navigator>
     )
 }

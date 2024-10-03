@@ -13,7 +13,6 @@ export default function WelcomeScreen() {
 
     const getAccessToken = async () => {
         const token = await Keychain.getGenericPassword();
-        console.log(token);
         if (token) {
             navigation.reset({
                 index: 0,

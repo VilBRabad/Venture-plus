@@ -1,47 +1,79 @@
-import { Dimensions, StyleSheet, Text, TouchableNativeFeedback, View } from 'react-native'
-import React from 'react'
+import { ActivityIndicator, Dimensions, Image, StyleSheet, Text, TouchableNativeFeedback, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import Feather from "react-native-vector-icons/Feather";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
-import { useNavigation } from '@react-navigation/native';
+import { RouteProp, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from '../Navigations/StackNavigation';
 import TopTabNavigation from '../Navigations/TopTabNavigation';
-
+import axios from 'axios';
+import { useQuery } from '@tanstack/react-query';
 
 const { width } = Dimensions.get("window");
 
+type ProfileProps = {
+  route: RouteProp<RootStackParamList, "StartupProfile">
+}
 
-export default function StartupProfileScreen() {
+
+const getCompanyById = async (companyId: string) => {
+  const res = await axios.get(`http://192.168.43.37:8000/api/v1/organization/get-organization-by-id?_id=${companyId}`)
+  return res.data.data.data as ICompany;
+}
+
+
+export default function StartupProfileScreen({ route }: ProfileProps) {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  const { data, isLoading, error, isError } = useQuery({
+    queryKey: ["company"],
+    queryFn: () => getCompanyById(route.params.companyId)
+  })
+
+  // console.log(data);
 
   return (
     <View style={styles.container}>
-      <View style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 15 }}>
-        <TouchableNativeFeedback onPress={() => navigation.pop()}>
-          <Feather name='arrow-left' size={23} color="#FFFFFF" />
-        </TouchableNativeFeedback>
-        <Feather name='more-vertical' size={22} color="#FFFFFF" />
-      </View>
+      {
+        isLoading ?
+          <ActivityIndicator size="large" />
+          :
+          <>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 15, paddingHorizontal: 15 }}>
+              <TouchableNativeFeedback onPress={() => navigation.pop()}>
+                <Feather name='arrow-left' size={23} color="#FFFFFF" />
+              </TouchableNativeFeedback>
+              <Feather name='more-vertical' size={22} color="#FFFFFF" />
+            </View>
 
-      <View style={{ marginTop: 10, flexDirection: 'row', gap: 18, alignItems: 'center' }}>
-        <FontAwesome name='building-o' size={60} color="#FFFFFF" />
-        <View style={{ paddingRight: 100 }}>
-          <Text
-            style={{ color: "#FFFFFF", fontSize: 18, fontWeight: '600' }}
-            numberOfLines={3}
-          >
-            SAATHIYAA REAL ESTATE PVT. LTD.
-          </Text>
-          <Text>Dahanu Road, MH</Text>
-        </View>
-      </View>
+            <View style={{ marginTop: 10, flexDirection: 'row', gap: 18, alignItems: 'center', paddingHorizontal: 15 }}>
+              {
+                data?.logo_url ?
+                  <Image source={{ uri: data.logo_url }} style={styles.image} />
+                  :
+                  <FontAwesome name='building-o' size={60} color="#FFFFFF" />
+              }
+              <View style={{ paddingRight: 100 }}>
+                <Text
+                  style={{ color: "#FFFFFF", fontSize: 20, fontWeight: '600' }}
+                  numberOfLines={3}
+                >
+                  {data?.name}
+                </Text>
+                <Text>{data?.city}, {data?.region}</Text>
+              </View>
+            </View>
 
-      <View style={{ backgroundColor: "#202020", height: 2, width, marginTop: 20, marginLeft: -15 }} />
+            <View style={{ width, justifyContent: 'center', alignItems: 'center' }}>
+              <View style={{ backgroundColor: "#202020", height: 2, width: '94%', marginTop: 20 }} />
+            </View>
 
-      {/* TopTabNavigation should not be inside ScrollView */}
-      <View style={{ flex: 1, marginTop: 10 }}>
-        <TopTabNavigation />
-      </View>
+            {/* TopTabNavigation should not be inside ScrollView */}
+            <View style={{ flex: 1, marginTop: 10 }}>
+              <TopTabNavigation data={data} />
+            </View>
+          </>
+      }
     </View>
   )
 }
@@ -50,6 +82,11 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "#000000",
     flex: 1, // Ensure the container takes full height
-    paddingHorizontal: 15
+    // paddingHorizontal: 15
+  },
+  image: {
+    height: 70,
+    width: 70,
+    resizeMode: 'contain'
   }
 })

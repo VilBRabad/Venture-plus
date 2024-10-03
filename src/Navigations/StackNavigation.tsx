@@ -15,7 +15,7 @@ export type RootStackParamList = {
     Message: undefined,
     Authentication: undefined,
     HomePage: undefined,
-    StartupProfile: undefined
+    StartupProfile: { companyId: string }
 }
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
