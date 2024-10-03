@@ -5,15 +5,8 @@ import AntIcon from "react-native-vector-icons/AntDesign"
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from '../Navigations/StackNavigation';
-import axios from 'axios';
-import { useMutation } from '@tanstack/react-query';
-import Snackbar from 'react-native-snackbar';
-import showError from '../utils/ServerErrorSnackbar';
-
-
-const loginUser = async (user: { email: string, password: string }) => {
-    return await axios.post("http://192.168.43.37:8000/api/v1/user/login", user);
-}
+import { loginUser } from '../redux/user/userSlice';
+import { useAppDispatch } from '../hooks';
 
 
 export default function LoginForm() {
@@ -21,34 +14,17 @@ export default function LoginForm() {
 
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
+    const dispatch = useAppDispatch();
 
-    const { mutateAsync } = useMutation({
-        mutationFn: loginUser,
-        onSuccess: (data) => {
-            console.log(data);
-            navigation.reset({
-                index: 0,
-                routes: [{ name: 'HomePage' }]
-            })
-        },
-        onError: (error) => {
-            showError(error);
-        }
-    })
 
     const loginHandler = async () => {
-        if (email.trim() === "" || password.trim() === "") {
-            Snackbar.show({
-                text: "All fields required!",
-                backgroundColor: "#C70039"
+        const x = await dispatch(loginUser({ email, password }));
+        // console.log(x);
+        if (x.payload) {
+            navigation.reset({
+                index: 0,
+                routes: [{ name: "HomePage" }]
             })
-            return;
-        }
-
-        try {
-            mutateAsync({ email, password });
-        } catch (error) {
-            console.log(error);
         }
     }
 

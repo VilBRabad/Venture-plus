@@ -1,14 +1,30 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React from 'react'
+import React, { useEffect } from 'react'
 import welcomeImage from "../assets/images/welcome.png";
 import Icon from "react-native-vector-icons/Feather";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from '../Navigations/StackNavigation';
+import * as Keychain from "react-native-keychain";
 
 export default function WelcomeScreen() {
 
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+    const getAccessToken = async () => {
+        const token = await Keychain.getGenericPassword();
+        console.log(token);
+        if (token) {
+            navigation.reset({
+                index: 0,
+                routes: [{ name: "HomePage" }]
+            });
+        }
+    }
+
+    useEffect(() => {
+        getAccessToken();
+    }, []);
 
     return (
         <View style={styles.container}>

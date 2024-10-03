@@ -13,6 +13,8 @@ import {
   QueryClientProvider,
   QueryClient
 } from "@tanstack/react-query"
+import { store } from './redux/store';
+import { Provider } from 'react-redux';
 
 
 const queryClient = new QueryClient();
@@ -21,7 +23,9 @@ function App(): React.JSX.Element {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Navigator />
+      <Provider store={store}>
+        <Navigator />
+      </Provider>
     </QueryClientProvider>
   );
 }
