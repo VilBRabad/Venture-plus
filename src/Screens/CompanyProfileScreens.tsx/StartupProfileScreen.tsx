@@ -4,10 +4,11 @@ import Feather from "react-native-vector-icons/Feather";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from '../Navigations/StackNavigation';
-import TopTabNavigation from '../Navigations/TopTabNavigation';
+import { RootStackParamList } from '../../Navigations/StackNavigation';
+import TopTabNavigation from '../../Navigations/TopTabNavigation';
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
+import * as Keychain from "react-native-keychain";
 
 const { width } = Dimensions.get("window");
 
@@ -17,7 +18,12 @@ type ProfileProps = {
 
 
 const getCompanyById = async (companyId: string) => {
-  const res = await axios.get(`http://192.168.43.37:8000/api/v1/organization/get-organization-by-id?_id=${companyId}`)
+  const accessToken = await Keychain.getGenericPassword()
+  const res = await axios.get(`http://192.168.43.37:8000/api/v1/organization/get-organization-by-id?_id=${companyId}`, {
+    headers: {
+      "Authorization": accessToken ? accessToken.password : undefined
+    }
+  })
   return res.data.data.data as ICompany;
 }
 
@@ -48,8 +54,8 @@ export default function StartupProfileScreen({ route }: ProfileProps) {
 
             <View style={{ marginTop: 10, flexDirection: 'row', gap: 18, alignItems: 'center', paddingHorizontal: 15 }}>
               {
-                data?.logo_url ?
-                  <Image source={{ uri: data.logo_url }} style={styles.image} />
+                data?.logo ?
+                  <Image source={{ uri: data.logo }} style={styles.image} />
                   :
                   <FontAwesome name='building-o' size={60} color="#FFFFFF" />
               }
@@ -58,9 +64,9 @@ export default function StartupProfileScreen({ route }: ProfileProps) {
                   style={{ color: "#FFFFFF", fontSize: 20, fontWeight: '600' }}
                   numberOfLines={3}
                 >
-                  {data?.name}
+                  {data?.Company}
                 </Text>
-                <Text>{data?.city}, {data?.region}</Text>
+                <Text>{data?.City}, {data?.State}, {data?.Country}</Text>
               </View>
             </View>
 

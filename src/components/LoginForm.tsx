@@ -19,7 +19,7 @@ export default function LoginForm() {
 
     const loginHandler = async () => {
         const x = await dispatch(loginUser({ email, password }));
-        // console.log(x);
+        console.log(x);
         if (x.payload) {
             navigation.reset({
                 index: 0,
@@ -67,6 +67,14 @@ export default function LoginForm() {
             <View style={[styles.button, styles.normalContainer]}>
                 <TouchableOpacity style={styles.submitBtn} onPress={loginHandler}>
                     <Text style={styles.text}>Log in</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.submitBtn} onPress={() =>
+                    navigation.reset({
+                        index: 0,
+                        routes: [{ name: "HomePage" }]
+                    })}
+                >
+                    <Text style={styles.text}>Skip for now</Text>
                 </TouchableOpacity>
             </View>
         </View>

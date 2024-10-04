@@ -7,7 +7,7 @@ import WelcomeScreen from '../Screens/WelcomeScreen';
 import MessageScreen from '../Screens/MessageScreen';
 import AuthScreen from '../Screens/AuthScreen';
 import BottomTabNavigation from './BottomTabNavigation';
-import StartupProfileScreen from '../Screens/StartupProfileScreen';
+import StartupProfileScreen from '../Screens/CompanyProfileScreens.tsx/StartupProfileScreen';
 import TopTabNavigation from './TopTabNavigation';
 
 export type RootStackParamList = {

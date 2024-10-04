@@ -17,8 +17,6 @@ export default function HomeScreen() {
         queryFn: getCompanies
     })
 
-    // console.log(data);
-
     return (
         <ScrollView style={styles.container}>
             <View style={styles.topHeading}>
