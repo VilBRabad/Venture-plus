@@ -9,13 +9,15 @@ import AuthScreen from '../Screens/AuthScreen';
 import BottomTabNavigation from './BottomTabNavigation';
 import StartupProfileScreen from '../Screens/CompanyProfileScreens.tsx/StartupProfileScreen';
 import TopTabNavigation from './TopTabNavigation';
+import UpdateUserDetailsScreen from '../Screens/UpdateUserDetailsScreen';
 
 export type RootStackParamList = {
     Welcome: undefined,
     Message: undefined,
     Authentication: undefined,
     HomePage: undefined,
-    StartupProfile: { companyId: string }
+    StartupProfile: { companyId: string },
+    UpdateProfile: { user: IUser, userProfile?: IUserProfile }
 }
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -34,6 +36,7 @@ export default function Navigator() {
                 <Stack.Screen name='Authentication' component={AuthScreen} options={{ headerShown: false }} />
                 <Stack.Screen name='HomePage' component={BottomTabNavigation} options={{ headerShown: false }} />
                 <Stack.Screen name='StartupProfile' component={StartupProfileScreen} options={{ headerShown: false }} />
+                <Stack.Screen name='UpdateProfile' component={UpdateUserDetailsScreen} options={{ headerShown: false }} />
             </Stack.Navigator>
         </NavigationContainer>
     )

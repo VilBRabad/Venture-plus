@@ -25,7 +25,7 @@ export default function StartupGeneralScreen({ data }: StartupGeneralScreenProps
                         </View>
                         <View style={styles.pairs}>
                             <Text style={{ color: "#AC84FF", width: '35%' }}>Industry: </Text>
-                            <Text style={{ color: "#FFFFFF" }} numberOfLines={3}>{data.Industry}</Text>
+                            <Text style={{ color: "#FFFFFF", textTransform: 'capitalize' }} numberOfLines={3}>{data.Industry}</Text>
                         </View>
                         <View style={styles.pairs}>
                             <Text style={{ color: "#AC84FF", width: '34%' }}>Founded Year: </Text>
@@ -49,7 +49,7 @@ export default function StartupGeneralScreen({ data }: StartupGeneralScreenProps
                         <View style={styles.box}>
                             <Text style={{ color: "#AC84FF" }}>No. Of Employee</Text>
                             <View style={styles.innerbox}>
-                                <Text style={{ color: "#FFFFFF", fontSize: 30, fontWeight: '700' }}>{data.Employees}</Text>
+                                <Text style={{ color: "#FFFFFF", fontSize: 30, fontWeight: '700' }}>{Number(data.Employees).toLocaleString()}</Text>
                             </View>
                         </View>
                         {

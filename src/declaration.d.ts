@@ -35,3 +35,19 @@ interface ICompany {
     logo?: string;
     Stock_symbol?: string
 }
+
+
+interface IUser {
+    name: string;
+    email: string;
+    messages?: string[];
+    history?: string[];
+    saveList?: string[];
+}
+
+interface IUserProfile {
+    paymentsForContactDetails?: string[];
+    focus?: string[];
+    fundingAmount?: string;
+    geographicPreferences?: string;
+}

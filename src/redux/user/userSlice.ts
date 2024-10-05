@@ -26,21 +26,34 @@ export const loginUser = createAsyncThunk(
 );
 
 
+interface UserState {
+    user: IUser | null;
+    userProfile: IUserProfile | undefined;
+    accessToken: string | null;
+    loading: boolean;
+    error: boolean;
+}
+
+const initialState: UserState = {
+    user: null,
+    userProfile: undefined,
+    accessToken: null,
+    loading: false,
+    error: false,
+}
 
 export const userSlice = createSlice({
     name: 'auth',
-    initialState: {
-        user: null,
-        accessToken: null,
-        loading: false,
-        error: false,
-    },
+    initialState,
     reducers: {
         logout: (state) => {
             state.user = null;
             state.accessToken = null;
             Keychain.resetGenericPassword();
         },
+        setUser: (state, action) => {
+            state.user = action.payload;
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -51,6 +64,7 @@ export const userSlice = createSlice({
             .addCase(loginUser.fulfilled, (state, action) => {
                 state.loading = false;
                 state.user = action.payload.user;
+                state.userProfile = action.payload.useProfile;
                 state.accessToken = action.payload.accessToken;
             })
             .addCase(loginUser.rejected, (state, action) => {
@@ -64,5 +78,7 @@ export const userSlice = createSlice({
     }
 })
 
-export const { logout } = userSlice.actions;
+export const { logout, setUser } = userSlice.actions;
+
+
 export default userSlice.reducer;

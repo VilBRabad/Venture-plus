@@ -19,7 +19,7 @@ export default function LoginForm() {
 
     const loginHandler = async () => {
         const x = await dispatch(loginUser({ email, password }));
-        console.log(x);
+        // console.log(x);
         if (x.payload) {
             navigation.reset({
                 index: 0,

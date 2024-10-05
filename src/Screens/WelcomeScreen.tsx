@@ -6,10 +6,20 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from '../Navigations/StackNavigation';
 import * as Keychain from "react-native-keychain";
+import { useGetUserQuery } from '../hooks/userHook';
+import { useAppDispatch } from '../hooks';
+import { setUser } from '../redux/user/userSlice';
 
 export default function WelcomeScreen() {
 
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+    const { data } = useGetUserQuery();
+
+    const dispatch = useAppDispatch()
+    if (data) {
+        dispatch(setUser({ user: data.user, userProfile: data.userProfile }));
+    }
 
     const getAccessToken = async () => {
         const token = await Keychain.getGenericPassword();
