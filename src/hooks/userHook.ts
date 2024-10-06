@@ -11,7 +11,7 @@ const fetchUserFromServer = async () => {
         }
     })
 
-    // console.log(res.data.data);
+    // console.log("user Data: ", res.data.data);
     return res.data.data;
 }
 

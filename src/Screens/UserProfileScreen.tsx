@@ -1,11 +1,13 @@
 import { StyleSheet, Text, ScrollView, View, Dimensions, Pressable, Image } from 'react-native'
 import React, { useEffect } from 'react'
 import Feather from "react-native-vector-icons/Feather";
+import AntDesign from "react-native-vector-icons/AntDesign";
 import * as Keychain from "react-native-keychain";
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../Navigations/StackNavigation';
-import { useAppSelector } from '../hooks';
+import { useAppSelector, useAppDispatch } from '../hooks';
+import { logout } from '../redux/user/userSlice';
 
 const { width } = Dimensions.get("window");
 
@@ -15,7 +17,10 @@ export default function UserProfileScreen() {
 
     const user = useAppSelector((state) => state.auth.user);
     const userProfile = useAppSelector((state) => state.auth.userProfile);
+    const dispatch = useAppDispatch();
 
+
+    // console.log("Daata", data?.user);
     useEffect(() => {
         if (!user) {
             Keychain.resetGenericPassword();
@@ -28,11 +33,21 @@ export default function UserProfileScreen() {
     }, []);
 
 
-    // console.log(user);
+    console.log("User: ", userProfile);
     const navigateToUpdateProfile = () => {
         if (user) {
             navigation.navigate("UpdateProfile", { user, userProfile });
         }
+    }
+
+
+    const handleLogout = async () => {
+        await Keychain.resetGenericPassword();
+        dispatch(logout());
+        navigation.reset({
+            index: 0,
+            routes: [{ name: "Authentication" }]
+        })
     }
 
 
@@ -48,9 +63,9 @@ export default function UserProfileScreen() {
                         <View style={{ position: 'absolute', left: 10, top: 10 }}>
                             <Feather name='arrow-left' color="#FFFFFF" size={25} />
                         </View>
-                        <View style={{ position: 'absolute', right: 10, top: 10 }}>
-                            <Feather name='more-vertical' color="#FFFFFF" size={25} />
-                        </View>
+                        <Pressable onPress={handleLogout} style={{ position: 'absolute', right: 10, top: 10 }}>
+                            <AntDesign name='logout' color="#FFFFFF" size={25} />
+                        </Pressable>
                     </View>
                     <View style={styles.container}>
                         <Pressable onPress={navigateToUpdateProfile} style={{ position: 'absolute', right: 15, top: 15 }}>
@@ -67,47 +82,36 @@ export default function UserProfileScreen() {
                         </View>
                         <View style={{ alignItems: 'center', width, marginTop: 15 }}>
                             <Text style={{ color: "#FFFFFF", fontSize: 17, fontWeight: '600' }}>{user.name}</Text>
-                            <Text style={{ color: "#B0B0B0", fontSize: 13, marginTop: 5, fontWeight: '500' }}>Pune, MH</Text>
+                            <Text style={{ color: "#B0B0B0", fontSize: 13, marginTop: 5, fontWeight: '500' }}>{user.address}</Text>
                         </View>
                         {
                             userProfile ? <>
                                 <View style={{ width, marginTop: 15, paddingHorizontal: 15 }}>
                                     <Text style={{ color: "#FFFFFF" }}>Interested In</Text>
                                     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginVertical: 7 }}>
-                                        <View style={styles.focusContainer}>
-                                            <Text style={styles.focusText}>IT</Text>
-                                        </View>
-                                        <View style={styles.focusContainer}>
-                                            <Text style={styles.focusText}>Aggriculture</Text>
-                                        </View>
-                                        <View style={styles.focusContainer}>
-                                            <Text style={styles.focusText}>Trading</Text>
-                                        </View>
-                                        <View style={styles.focusContainer}>
-                                            <Text style={styles.focusText}>Health Care</Text>
-                                        </View>
-                                        <View style={styles.focusContainer}>
-                                            <Text style={styles.focusText}>Cunsulting</Text>
-                                        </View>
-                                        <View style={styles.focusContainer}>
-                                            <Text style={styles.focusText}>Trading Company</Text>
-                                        </View>
+                                        {
+                                            userProfile.focus && userProfile.focus.map((industry, ind) => (
+                                                <View style={styles.focusContainer}>
+                                                    <Text style={styles.focusText}>{industry}</Text>
+                                                </View>
+                                            ))
+                                        }
                                     </View>
 
                                 </View>
                                 <View style={{ width, flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 30, paddingHorizontal: 18 }}>
                                     <View style={{ alignItems: 'center' }}>
-                                        <Text style={{ fontWeight: 'bold', color: "#AC84FF", fontSize: 15 }}>Mumbai</Text>
+                                        <Text style={{ fontWeight: 'bold', color: "#AC84FF", fontSize: 15 }}>{userProfile.geographicPreferences}</Text>
                                         <Text style={{ fontSize: 10, color: "#A0A0A0" }}>Geo Preference</Text>
                                     </View>
                                     <View style={{ width: 1, backgroundColor: "#606060" }}></View>
                                     <View style={{ alignItems: 'center' }}>
-                                        <Text style={{ fontWeight: 'bold', color: "#AC84FF", fontSize: 15 }}>₹ 500K</Text>
+                                        <Text style={{ fontWeight: 'bold', color: "#AC84FF", fontSize: 15 }}>₹ {userProfile.fundingAmount}</Text>
                                         <Text style={{ fontSize: 10, color: "#A0A0A0" }}>Funding Amount</Text>
                                     </View>
                                     <View style={{ width: 1, backgroundColor: "#606060" }}></View>
                                     <View style={{ alignItems: 'center' }}>
-                                        <Text style={{ fontWeight: 'bold', color: "#AC84FF", fontSize: 15 }}>10</Text>
+                                        <Text style={{ fontWeight: 'bold', color: "#AC84FF", fontSize: 15 }}>0</Text>
                                         <Text style={{ fontSize: 10, color: "#A0A0A0" }}>Investments</Text>
                                     </View>
                                 </View>

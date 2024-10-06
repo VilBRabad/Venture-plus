@@ -40,12 +40,16 @@ interface ICompany {
 interface IUser {
     name: string;
     email: string;
+    address?: string;
     messages?: string[];
     history?: string[];
     saveList?: string[];
 }
 
 interface IUserProfile {
+    _id: string;
+    _v: number;
+    investor: string;
     paymentsForContactDetails?: string[];
     focus?: string[];
     fundingAmount?: string;

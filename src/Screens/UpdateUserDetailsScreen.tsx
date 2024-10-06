@@ -1,4 +1,4 @@
-import { Button, Pressable, ScrollView, StyleSheet, Text, TextInput, Touchable, View } from 'react-native'
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Feather from 'react-native-vector-icons/Feather'
 import Entypo from 'react-native-vector-icons/Entypo'
@@ -6,10 +6,42 @@ import { RouteProp, useNavigation } from '@react-navigation/native'
 import { RootStackParamList } from '../Navigations/StackNavigation'
 import Snackbar from 'react-native-snackbar'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import axios from 'axios'
+import * as Keychain from "react-native-keychain";
+import { useMutation } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
+import showError from '../utils/ServerErrorSnackbar'
 
 type UpdateUserDetailsScreenProps = {
     route: RouteProp<RootStackParamList, "UpdateProfile">
 }
+
+const updateProfileDetails = async (address: string, focus: string[], fundingAmount: string, geographicPreferences: string) => {
+    if (address === "" || focus.length === 0 || !fundingAmount || !geographicPreferences) {
+        throw new Error("All Fields required!");
+    }
+    const accessToken = await Keychain.getGenericPassword();
+    const res = await axios.post("http://192.168.43.37:8000/api/v1/user/update-profile", { address, focus, fundingAmount, geographicPreferences }, {
+        headers: {
+            "Authorization": accessToken ? accessToken.password : undefined
+        },
+    });
+
+    return res;
+}
+
+
+const getUserHistory = async () => {
+    const accessToken = await Keychain.getGenericPassword();
+    const res = await axios.get("http://192.168.43.37:8000/api/v1/organization/get-user-history", {
+        headers: {
+            "Authorization": accessToken ? accessToken.password : undefined
+        },
+    });
+
+    return res;
+}
+
 
 export default function UpdateUserDetailsScreen({ route }: UpdateUserDetailsScreenProps) {
 
@@ -17,8 +49,12 @@ export default function UpdateUserDetailsScreen({ route }: UpdateUserDetailsScre
 
     const [inputFocus, setInputFocus] = useState<string | null>(null);
 
+
+    const user = route.params.user;
+    const userProfile = route.params.userProfile;
+
     useEffect(() => {
-        if (!route.params.user) {
+        if (!user) {
             Snackbar.show({
                 text: "Un-authorised request, please login!",
                 backgroundColor: "#C70039"
@@ -28,18 +64,15 @@ export default function UpdateUserDetailsScreen({ route }: UpdateUserDetailsScre
                 routes: [{ name: "Authentication" }]
             })
         }
-        return
     }, []);
     //inputs:
-    const [name, setName] = useState(route.params.user.name);
-    const [address, setAddress] = useState("");
+    const [name, setName] = useState(user.name);
+    const [address, setAddress] = useState(user.address ? user.address : "");
 
-    const [industries, setIndustries] = useState([
-        "Social", "Management", "Cyber Security", "Trading"
-    ])
+    const [industries, setIndustries] = useState(userProfile && userProfile.focus ? userProfile.focus : [])
     const [industry, setIndustry] = useState("");
-    const [geographicPreferences, setGeographicPreferences] = useState(route.params.userProfile ? route.params.userProfile.geographicPreferences : "");
-    const [fundingAmount, setFundingAmount] = useState(route.params.userProfile ? route.params.userProfile.fundingAmount : "");
+    const [geographicPreferences, setGeographicPreferences] = useState<string>(userProfile && userProfile.geographicPreferences ? userProfile.geographicPreferences : "");
+    const [fundingAmount, setFundingAmount] = useState<string>(userProfile && userProfile.fundingAmount ? userProfile.fundingAmount : "");
 
     // console.log(route.params);
     const handleAddIndustry = () => {
@@ -54,10 +87,47 @@ export default function UpdateUserDetailsScreen({ route }: UpdateUserDetailsScre
     }
 
 
+    //* Making request
+    const queryClient = useQueryClient();
+
+    const { mutateAsync } = useMutation({
+        mutationKey: ["update-profile"],
+        mutationFn: () => updateProfileDetails(address, industries, fundingAmount, geographicPreferences),
+        onSuccess: () => {
+            Snackbar.show({
+                text: "Updated successfully!",
+                backgroundColor: "#228B22"
+            })
+            const x = queryClient.invalidateQueries({ queryKey: ["get-user"] });
+            console.log(x);
+            navigation.pop();
+        },
+        onError: (error) => {
+            const code = showError(error);
+            if (code === 401) navigation.reset({
+                index: 0,
+                routes: [{ name: "Authentication" }]
+            })
+        }
+
+    })
+
+    const handleSubmitForm = async () => {
+        try {
+            mutateAsync();
+        } catch (error) {
+            Snackbar.show({
+                text: "Somethin went wrong!",
+                backgroundColor: "#C70039"
+            })
+        }
+    }
+
+
     return (
         <ScrollView style={{ backgroundColor: "#000000" }}>
             {
-                route.params.user && <>
+                user && <>
                     <Pressable onPress={() => navigation.pop()} style={{ marginTop: 15, marginLeft: 15 }}>
                         <Feather name='arrow-left' color="#FFFFFF" size={25} />
                     </Pressable>
@@ -140,6 +210,8 @@ export default function UpdateUserDetailsScreen({ route }: UpdateUserDetailsScre
                                 onFocus={() => setInputFocus('4')}
                                 onBlur={() => setInputFocus(null)}
                                 placeholder='ex. India'
+                                value={geographicPreferences}
+                                onChangeText={setGeographicPreferences}
                             />
                         </View>
                         <View style={styles.inputConatiner}>
@@ -151,14 +223,16 @@ export default function UpdateUserDetailsScreen({ route }: UpdateUserDetailsScre
                                 onFocus={() => setInputFocus('5')}
                                 onBlur={() => setInputFocus(null)}
                                 placeholder='ex. $ 2,000'
+                                value={fundingAmount}
+                                onChangeText={setFundingAmount}
                             />
                         </View>
                         <View style={{ marginTop: 130, alignItems: 'center', paddingBottom: 2 }}>
                             <Text style={{ fontSize: 12 }}>All terms & conditions applied*</Text>
                         </View>
-                        <View style={{ paddingVertical: 12, width: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: "#AC84FF", borderRadius: 10 }}>
+                        <Pressable onPress={handleSubmitForm} style={{ paddingVertical: 12, width: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: "#AC84FF", borderRadius: 10 }}>
                             <Text style={{ color: "#000000", fontSize: 15, fontWeight: '700' }}>Update Profile</Text>
-                        </View>
+                        </Pressable>
                     </View>
                 </>
             }

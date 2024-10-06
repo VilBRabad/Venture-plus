@@ -9,6 +9,8 @@ function showError(error: Error) {
             text: serverMessage,
             backgroundColor: "#C70039"
         });
+
+        return error.response?.data.statusCode;
     } else {
         Snackbar.show({
             text: error.message || "Unknown error",

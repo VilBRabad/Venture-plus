@@ -64,7 +64,8 @@ export const userSlice = createSlice({
             .addCase(loginUser.fulfilled, (state, action) => {
                 state.loading = false;
                 state.user = action.payload.user;
-                state.userProfile = action.payload.useProfile;
+                console.log("Paylod: ", action.payload.userProfile);
+                state.userProfile = action.payload.userProfile;
                 state.accessToken = action.payload.accessToken;
             })
             .addCase(loginUser.rejected, (state, action) => {
