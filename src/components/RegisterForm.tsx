@@ -46,7 +46,7 @@ export default function RegisterForm() {
             return;
         }
         try {
-            registerUser({ name, email, password });
+            await registerUser({ name, email, password });
         } catch (error) {
             console.log(error);
         }

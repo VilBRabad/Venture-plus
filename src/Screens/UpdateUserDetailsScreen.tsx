@@ -1,5 +1,5 @@
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { ActivityIndicator, Dimensions, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import React, { useCallback, useEffect, useState } from 'react'
 import Feather from 'react-native-vector-icons/Feather'
 import Entypo from 'react-native-vector-icons/Entypo'
 import { RouteProp, useNavigation } from '@react-navigation/native'
@@ -8,9 +8,12 @@ import Snackbar from 'react-native-snackbar'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import axios from 'axios'
 import * as Keychain from "react-native-keychain";
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { useQueryClient } from '@tanstack/react-query'
 import showError from '../utils/ServerErrorSnackbar'
+import debounce from 'lodash.debounce'
+
+const { height, width } = Dimensions.get("window");
 
 type UpdateUserDetailsScreenProps = {
     route: RouteProp<RootStackParamList, "UpdateProfile">
@@ -31,15 +34,9 @@ const updateProfileDetails = async (address: string, focus: string[], fundingAmo
 }
 
 
-const getUserHistory = async () => {
-    const accessToken = await Keychain.getGenericPassword();
-    const res = await axios.get("http://192.168.43.37:8000/api/v1/organization/get-user-history", {
-        headers: {
-            "Authorization": accessToken ? accessToken.password : undefined
-        },
-    });
-
-    return res;
+const getIndustryKeywords = async (searchText: string): Promise<string[]> => {
+    const res = await axios.get(`http://192.168.43.37:8000/api/v1/organization/get-industries-titles?search=${searchText}`);
+    return res.data.data.industries;
 }
 
 
@@ -70,16 +67,21 @@ export default function UpdateUserDetailsScreen({ route }: UpdateUserDetailsScre
     const [address, setAddress] = useState(user.address ? user.address : "");
 
     const [industries, setIndustries] = useState(userProfile && userProfile.focus ? userProfile.focus : [])
-    const [industry, setIndustry] = useState("");
     const [geographicPreferences, setGeographicPreferences] = useState<string>(userProfile && userProfile.geographicPreferences ? userProfile.geographicPreferences : "");
     const [fundingAmount, setFundingAmount] = useState<string>(userProfile && userProfile.fundingAmount ? userProfile.fundingAmount : "");
 
+    const [searchText, setSearchText] = useState<string>("");
+    const [isKeywordInputFocus, setIsKeywordInputFocus] = useState<boolean>(false);
+    const [isShow, setShow] = useState<boolean>(false);
+    const [isValid, setValid] = useState<boolean>(false);
+
     // console.log(route.params);
     const handleAddIndustry = () => {
-        if (industry !== "") {
-            setIndustries(inds => [...inds, industry]);
+        if (searchText !== "" && isValid) {
+            setIndustries(inds => [...inds, searchText]);
+            setSearchText("");
+            setShow(false);
         }
-        setIndustry("");
     }
 
     const handleRemoveIndustry = (industryToBeRemove: string) => {
@@ -124,6 +126,34 @@ export default function UpdateUserDetailsScreen({ route }: UpdateUserDetailsScre
     }
 
 
+    const { data, isLoading, refetch } = useQuery({
+        queryKey: ["get-keywords"],
+        queryFn: () => getIndustryKeywords(searchText),
+        enabled: isKeywordInputFocus
+    })
+
+    const debouncedSearch = useCallback(
+        debounce((text: string) => {
+            refetch();
+        }, 500),
+        []
+    );
+
+    const handleChangeText = (text: string) => {
+        setSearchText(text);
+        debouncedSearch(text);
+    }
+
+    useEffect(() => {
+        // console.log(searchText);
+        if (data && data.includes(searchText.toLowerCase())) {
+            setValid(true);
+        }
+        else setValid(false);
+    }, [searchText]);
+
+
+
     return (
         <ScrollView style={{ backgroundColor: "#000000" }}>
             {
@@ -159,34 +189,59 @@ export default function UpdateUserDetailsScreen({ route }: UpdateUserDetailsScre
                                 onChangeText={setAddress}
                             />
                         </View>
-                        <View style={{ marginTop: 15, }}>
+                        <View style={{ marginTop: 15, zIndex: 10 }}>
                             <Text style={styles.label}>Industry type (for suggestions):</Text>
                             <View style={{
-                                borderColor: inputFocus === '3' ? "#AC84FF" : "#909090",
+                                borderColor: isKeywordInputFocus ? "#AC84FF" : "#909090",
                                 borderWidth: 2,
                                 paddingHorizontal: 20,
                                 borderRadius: 20,
                                 height: 47,
                                 flexDirection: 'row',
                                 justifyContent: 'space-between',
-                                alignItems: 'center'
+                                alignItems: 'center',
+                                zIndex: 10
                             }}>
                                 <TextInput
                                     style={{
                                         borderRadius: 20,
-                                        height: 47
+                                        height: 47,
+                                        zIndex: 15
                                     }}
                                     placeholder='ex. Cyber Security'
-                                    onFocus={() => setInputFocus('3')}
-                                    onBlur={() => setInputFocus(null)}
-                                    value={industry}
-                                    onChangeText={setIndustry}
+                                    onFocus={() => { setIsKeywordInputFocus(true); setShow(true) }}
+                                    onBlur={() => setIsKeywordInputFocus(false)}
+                                    value={searchText}
+                                    onChangeText={handleChangeText}
                                 />
-                                <Pressable style={{ height: '100%', justifyContent: 'center' }} onPress={handleAddIndustry}>
-                                    <Text style={{ color: "#FFFFFF", fontWeight: "600" }}>ADD</Text>
+                                <Pressable style={{ height: '100%', justifyContent: 'center', zIndex: 15 }} onPress={handleAddIndustry}>
+                                    <Text style={{ color: isValid ? "#AC84FF" : "#909090", fontWeight: "600" }}>ADD</Text>
                                 </Pressable>
+                                {
+                                    isShow &&
+                                    <>
+                                        <Pressable onPress={() => setShow(false)} style={{ position: 'absolute', left: -15, height, width, zIndex: 10, justifyContent: 'center', alignItems: 'center' }}>
+                                        </Pressable>
+                                        <View style={{ position: 'absolute', top: 47, minHeight: 100, height: "auto", width: '113%', left: -2, zIndex: 20, backgroundColor: "#000000", borderWidth: 2, borderColor: "#505050", borderRadius: 20, paddingVertical: 15 }}>
+                                            {
+                                                isLoading ?
+                                                    <View style={{ marginTop: 20, width: "100%", justifyContent: 'center', alignItems: 'center' }}>
+                                                        <ActivityIndicator size="small" color="#AC84FF" />
+                                                    </View>
+                                                    :
+                                                    data && data.length > 0 ? data.map((dt, ind) => (
+                                                        <Pressable onPress={() => handleChangeText(dt)} key={ind} style={{ paddingVertical: 7, paddingLeft: 10 }}>
+                                                            <Text style={{ color: "#FFFFFF", marginLeft: 20 }}>{dt}</Text>
+                                                        </Pressable>
+                                                    ))
+                                                        :
+                                                        <Text style={{ marginTop: 20 }}>Search for "{searchText}"", not found</Text>
+                                            }
+                                        </View>
+                                    </>
+                                }
                             </View>
-                            <View style={{ flexDirection: 'row', gap: 5, marginVertical: 10, flexWrap: 'wrap' }}>
+                            <View style={{ flexDirection: 'row', gap: 5, marginVertical: 10, flexWrap: 'wrap', zIndex: 0 }}>
                                 {
                                     industries && industries.map((indus, ind) => (
                                         <View key={ind} style={{ paddingVertical: 3, paddingLeft: 15, paddingRight: 7, backgroundColor: "#AC84FF", borderRadius: 100, flexDirection: 'row', gap: 5, justifyContent: 'center', alignItems: 'center' }}>
@@ -201,7 +256,7 @@ export default function UpdateUserDetailsScreen({ route }: UpdateUserDetailsScre
                                 }
                             </View>
                         </View>
-                        <View style={styles.inputConatiner}>
+                        <View style={[styles.inputConatiner, { zIndex: 0 }]}>
                             <Text style={styles.label}>Geographical Preferences:</Text>
                             <TextInput
                                 style={[styles.input, {
@@ -214,7 +269,7 @@ export default function UpdateUserDetailsScreen({ route }: UpdateUserDetailsScre
                                 onChangeText={setGeographicPreferences}
                             />
                         </View>
-                        <View style={styles.inputConatiner}>
+                        <View style={[styles.inputConatiner, { zIndex: 0 }]}>
                             <Text style={styles.label}>Funding Amount:</Text>
                             <TextInput
                                 style={[styles.input, {
@@ -227,16 +282,16 @@ export default function UpdateUserDetailsScreen({ route }: UpdateUserDetailsScre
                                 onChangeText={setFundingAmount}
                             />
                         </View>
-                        <View style={{ marginTop: 130, alignItems: 'center', paddingBottom: 2 }}>
+                        <View style={{ marginTop: 130, alignItems: 'center', paddingBottom: 2, zIndex: 0 }}>
                             <Text style={{ fontSize: 12 }}>All terms & conditions applied*</Text>
                         </View>
-                        <Pressable onPress={handleSubmitForm} style={{ paddingVertical: 12, width: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: "#AC84FF", borderRadius: 10 }}>
+                        <Pressable onPress={handleSubmitForm} style={{ paddingVertical: 12, width: '100%', justifyContent: 'center', alignItems: 'center', backgroundColor: "#AC84FF", borderRadius: 10, zIndex: 50 }}>
                             <Text style={{ color: "#000000", fontSize: 15, fontWeight: '700' }}>Update Profile</Text>
                         </Pressable>
                     </View>
                 </>
             }
-        </ScrollView>
+        </ScrollView >
     )
 }
 
