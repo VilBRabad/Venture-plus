@@ -55,3 +55,10 @@ interface IUserProfile {
     fundingAmount?: string;
     geographicPreferences?: string;
 }
+
+
+interface ISearchCompany {
+    Company: string;
+    logo?: string;
+    _id: string
+}

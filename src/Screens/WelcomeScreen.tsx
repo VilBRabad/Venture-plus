@@ -7,33 +7,43 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from '../Navigations/StackNavigation';
 import * as Keychain from "react-native-keychain";
 import { useGetUserQuery } from '../hooks/userHook';
+import Snackbar from 'react-native-snackbar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { setSaveList } from '../redux/saveList/savelistSlice';
 import { useAppDispatch } from '../hooks';
-import { setUser } from '../redux/user/userSlice';
 
 export default function WelcomeScreen() {
 
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-    const { data } = useGetUserQuery();
+    const dispatch = useAppDispatch();
+    const { data, isLoading } = useGetUserQuery();
 
-    const dispatch = useAppDispatch()
-    if (data) {
-        dispatch(setUser({ user: data.user, userProfile: data.userProfile }));
-    }
+    const checkUser = async () => {
+        if (!data) {
+            await Keychain.resetGenericPassword();
+            await AsyncStorage.removeItem("username");
+            Snackbar.show({
+                text: "Session expire please login again",
+                backgroundColor: "#ff0000"
+            })
+        }
+        else {
+            dispatch(setSaveList(data.user.saveList));
 
-    const getAccessToken = async () => {
-        const token = await Keychain.getGenericPassword();
-        if (token) {
+            await AsyncStorage.setItem("username", `${data.user.name}`);
             navigation.reset({
                 index: 0,
-                routes: [{ name: "HomePage" }]
+                routes: [{ name: 'HomePage' }]
             });
         }
     }
 
     useEffect(() => {
-        getAccessToken();
-    }, []);
+        if (!isLoading) {
+            checkUser();
+        }
+    }, [isLoading]);
 
     return (
         <View style={styles.container}>

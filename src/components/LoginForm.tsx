@@ -1,12 +1,21 @@
-import { Dimensions, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Dimensions, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons'
 import AntIcon from "react-native-vector-icons/AntDesign"
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from '../Navigations/StackNavigation';
-import { loginUser } from '../redux/user/userSlice';
-import { useAppDispatch } from '../hooks';
+import axios from 'axios';
+import { useMutation } from '@tanstack/react-query';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Keychain from "react-native-keychain";
+import showError from '../utils/ServerErrorSnackbar';
+
+
+const loginUser = async (userCredentials: { email: string, password: string }): Promise<{ user: IUser, token: { accessToken: string, refreshToken: string } }> => {
+    const res = await axios.post("http://192.168.43.37:8000/api/v1/user/login", userCredentials);
+    return res.data.data;
+}
 
 
 export default function LoginForm() {
@@ -14,17 +23,28 @@ export default function LoginForm() {
 
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
-    const dispatch = useAppDispatch();
+
+    const [isVisiblePassword, setVisiblePassword] = useState(false);
+
+    const { mutateAsync } = useMutation({
+        mutationKey: ["login-user"],
+        mutationFn: () => loginUser({ email, password })
+    })
 
 
     const loginHandler = async () => {
-        const x = await dispatch(loginUser({ email, password }));
-        // console.log(x);
-        if (x.payload) {
-            navigation.reset({
-                index: 0,
-                routes: [{ name: "HomePage" }]
-            })
+        try {
+            const data = await mutateAsync();
+            if (data) {
+                await AsyncStorage.setItem("username", data.user.name);
+                await Keychain.setGenericPassword("accessToken", `${data.token.accessToken}`);
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: "HomePage" }]
+                })
+            }
+        } catch (error) {
+            showError(error as Error);
         }
     }
 
@@ -39,14 +59,28 @@ export default function LoginForm() {
                     value={email}
                     onChangeText={setEmail}
                 />
-                <TextInput
-                    placeholder='Password'
-                    secureTextEntry
-                    style={styles.input}
-                    placeholderTextColor="#333444"
-                    value={password}
-                    onChangeText={setPassword}
-                />
+                <View style={{ width: '80%', flexDirection: 'row', backgroundColor: "#AC84FF", paddingHorizontal: 20, borderRadius: 100, }}>
+                    <TextInput
+                        placeholder='Password'
+                        secureTextEntry={isVisiblePassword ? false : true}
+                        // style={styles.input}
+                        placeholderTextColor="#333444"
+                        value={password}
+                        onChangeText={setPassword}
+                        style={{ width: "89%", color: '#000000' }}
+                    />
+                    {
+                        !isVisiblePassword ?
+                            <Pressable onPress={() => setVisiblePassword(true)} style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                <Text style={{ color: "#000000", fontWeight: '600', fontSize: 11 }}>SHOW</Text>
+                            </Pressable>
+                            :
+                            <Pressable onPress={() => setVisiblePassword(false)} style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                <Text style={{ color: "#000000", fontWeight: '600', fontSize: 12 }}>HIDE</Text>
+                            </Pressable>
+
+                    }
+                </View>
             </View>
             <View style={{ marginTop: 50, width: '98%', bottom: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
                 <View style={{ height: 1, width: '40%', backgroundColor: "#AC84FF" }}></View>
@@ -65,16 +99,16 @@ export default function LoginForm() {
                 </TouchableOpacity>
             </View>
             <View style={[styles.button, styles.normalContainer]}>
-                <TouchableOpacity style={styles.submitBtn} onPress={loginHandler}>
+                <TouchableOpacity style={[styles.submitBtn, { backgroundColor: "#AC84FF" }]} onPress={loginHandler}>
                     <Text style={styles.text}>Log in</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.submitBtn} onPress={() =>
+                <TouchableOpacity style={[styles.submitBtn, { marginBottom: 10, borderWidth: 2, borderColor: "#AC84FF" }]} onPress={() =>
                     navigation.reset({
                         index: 0,
                         routes: [{ name: "HomePage" }]
                     })}
                 >
-                    <Text style={styles.text}>Skip for now</Text>
+                    <Text style={{ fontWeight: '500', color: "#FFFFFF" }}>Skip for now</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -102,9 +136,10 @@ const styles = StyleSheet.create({
         width: "80%",
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: "#AC84FF",
+        // backgroundColor: "#AC84FF",
         height: 48,
         borderRadius: 100,
+        marginTop: 10
     },
     text: {
         color: "#000000",
@@ -123,7 +158,7 @@ const styles = StyleSheet.create({
         width: "100%",
         flexDirection: "row",
         gap: 15,
-        paddingVertical: 50
+        paddingVertical: 30
     },
     button: {
         width: "100%",

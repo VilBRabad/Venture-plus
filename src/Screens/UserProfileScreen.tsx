@@ -1,4 +1,4 @@
-import { StyleSheet, Text, ScrollView, View, Dimensions, Pressable, Image } from 'react-native'
+import { StyleSheet, Text, ScrollView, View, Dimensions, Pressable, Image, ActivityIndicator } from 'react-native'
 import React, { useEffect } from 'react'
 import Feather from "react-native-vector-icons/Feather";
 import AntDesign from "react-native-vector-icons/AntDesign";
@@ -6,34 +6,46 @@ import * as Keychain from "react-native-keychain";
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../Navigations/StackNavigation';
-import { useAppSelector, useAppDispatch } from '../hooks';
-import { logout } from '../redux/user/userSlice';
+import UserHistory from '../components/UserHistory';
+import { useGetUserQuery } from '../hooks/userHook';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useQueryClient } from '@tanstack/react-query';
+import showError from '../utils/ServerErrorSnackbar';
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 export default function UserProfileScreen() {
 
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-    const user = useAppSelector((state) => state.auth.user);
-    const userProfile = useAppSelector((state) => state.auth.userProfile);
-    const dispatch = useAppDispatch();
+    const { data, isLoading, isError, error } = useGetUserQuery();
+    const user = data?.user;
+    const userProfile = data?.userProfile || undefined;
+    const queryClient = useQueryClient();
 
 
-    // console.log("Daata", data?.user);
-    useEffect(() => {
+    const logoutUser = async () => {
         if (!user) {
-            Keychain.resetGenericPassword();
+            queryClient.removeQueries({ queryKey: ["get-user"] })
+            await Keychain.resetGenericPassword();
+            await AsyncStorage.removeItem("username");
             navigation.reset({
                 index: 0,
                 routes: [{ name: "Authentication" }]
             })
+            showError(error as Error);
             return;
         }
-    }, []);
+    }
 
 
-    console.log("User: ", userProfile);
+    useEffect(() => {
+        if (!isLoading && !data) {
+            logoutUser();
+        }
+    }, [isLoading]);
+
+
     const navigateToUpdateProfile = () => {
         if (user) {
             navigation.navigate("UpdateProfile", { user, userProfile });
@@ -42,8 +54,9 @@ export default function UserProfileScreen() {
 
 
     const handleLogout = async () => {
+        queryClient.removeQueries({ queryKey: ["get-user"] })
         await Keychain.resetGenericPassword();
-        dispatch(logout());
+        await AsyncStorage.removeItem("username");
         navigation.reset({
             index: 0,
             routes: [{ name: "Authentication" }]
@@ -54,7 +67,7 @@ export default function UserProfileScreen() {
     return (
         <ScrollView>
             {
-                user && <>
+                user && !isLoading ? <>
                     <View style={{ position: 'relative', height: 180, flexDirection: 'row', justifyContent: "space-between" }}>
                         <Image
                             source={{ uri: "https://img.freepik.com/premium-photo/empty-conference-room-table-with-blurred-background-people-meeting_1034924-34411.jpg" }}
@@ -91,7 +104,7 @@ export default function UserProfileScreen() {
                                     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginVertical: 7 }}>
                                         {
                                             userProfile.focus && userProfile.focus.map((industry, ind) => (
-                                                <View style={styles.focusContainer}>
+                                                <View key={ind} style={styles.focusContainer}>
                                                     <Text style={styles.focusText}>{industry}</Text>
                                                 </View>
                                             ))
@@ -138,16 +151,25 @@ export default function UserProfileScreen() {
                                 <Text style={{ fontSize: 12, color: "#AC84FF" }}>See all</Text>
                             </View>
                             {
-                                !user.history &&
-                                <View style={{ flexDirection: 'column', gap: 10, marginTop: 10 }}>
-                                    <View style={{ height: 250, width: '100%', justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text style={{ fontSize: 30, fontWeight: 'bold', color: "#303030" }}>No History</Text>
+                                user.history && user.history?.length > 0 ?
+                                    <UserHistory />
+                                    :
+                                    <View style={{ flexDirection: 'column', gap: 10, marginTop: 10 }}>
+                                        <View style={{ height: 250, width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+                                            <Text style={{ fontSize: 30, fontWeight: 'bold', color: "#303030" }}>No History</Text>
+                                        </View>
                                     </View>
-                                </View>
                             }
                         </View>
                     </View>
                 </>
+                    :
+                    <View style={{ flex: 1, height, width, justifyContent: 'center', alignItems: 'center' }}>
+                        {
+                            isLoading &&
+                            <ActivityIndicator size="large" color="#AC84FF" />
+                        }
+                    </View>
             }
         </ScrollView>
     )

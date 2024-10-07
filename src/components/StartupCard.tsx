@@ -1,25 +1,97 @@
-import { Image, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native'
+import { Image, Pressable, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native'
 import React from 'react'
 import FontAwesome from "react-native-vector-icons/FontAwesome"
-import Feather from "react-native-vector-icons/Feather"
+import Ionicons from "react-native-vector-icons/Ionicons"
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from '../Navigations/StackNavigation'
+import axios from 'axios'
+import * as Keychain from "react-native-keychain";
+import { useMutation } from '@tanstack/react-query'
+import showError from '../utils/ServerErrorSnackbar'
+import Snackbar from 'react-native-snackbar'
+import { useAppDispatch, useAppSelector } from '../hooks'
+import { setInList, removeFromList } from '../redux/saveList/savelistSlice'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface ICardProps {
     companyData: ICompany;
 }
 
+const saveToList = async (company: string) => {
+    const accessToken = await Keychain.getGenericPassword();
+    const res = await axios.post(`http://192.168.43.37:8000/api/v1/user/save-to-list?company=${company}`, {}, {
+        headers: {
+            Authorization: accessToken ? accessToken.password : undefined
+        }
+    });
+
+    return res.data;
+}
+
+
+const removeFromSaveList = async (company: string) => {
+    const accessToken = await Keychain.getGenericPassword();
+    const res = await axios.post(`http://192.168.43.37:8000/api/v1/user/remove-from-list`, { id: company }, {
+        headers: {
+            Authorization: accessToken ? accessToken.password : undefined
+        }
+    });
+
+    return res.data;
+}
+
+
 export default function StartupCard({ companyData }: ICardProps) {
 
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+    const dispatch = useAppDispatch();
+    const queryClient = useQueryClient();
 
-    // console.log(companyData.logo_url);
+    const { mutateAsync: addToListMutation } = useMutation({
+        mutationFn: () => saveToList(companyData._id)
+    })
+
+    const { mutateAsync: removeFromListMuatation } = useMutation({
+        mutationFn: () => removeFromSaveList(companyData._id)
+    })
+
+
+    const List = useAppSelector((state) => state.SaveList.list);
+
+    const handleSaveClick = async () => {
+        try {
+            const data = await addToListMutation();
+            dispatch(setInList(companyData._id));
+            queryClient.invalidateQueries({ queryKey: ["get-data-of-savelist"] })
+            Snackbar.show({
+                text: data.message,
+                backgroundColor: "#228B22"
+            })
+        } catch (error) {
+            showError(error as Error)
+        }
+    }
+
+
+    const handleRemoveClick = async () => {
+        try {
+            const data = await removeFromListMuatation();
+            dispatch(removeFromList(companyData._id));
+            queryClient.invalidateQueries({ queryKey: ["get-data-of-savelist"] })
+            Snackbar.show({
+                text: data.message,
+                backgroundColor: "#228B22"
+            })
+        } catch (error) {
+            showError(error as Error)
+        }
+    }
 
     return (
-        <TouchableWithoutFeedback onPress={() => navigation.navigate("StartupProfile", { companyId: companyData._id })}>
+        <View style={{ zIndex: 1 }} >
             <View style={styles.container}>
-                <View style={{ flexDirection: 'column', gap: 15 }}>
+                <Pressable onPress={() => navigation.navigate("StartupProfile", { companyId: companyData._id })} style={{ flexDirection: 'column', gap: 15 }}>
                     <View style={{ marginTop: 5, flexDirection: 'row', gap: 10, alignItems: 'center' }}>
                         <View style={{ width: 50, justifyContent: 'center' }}>
                             {companyData.logo ?
@@ -60,12 +132,19 @@ export default function StartupCard({ companyData }: ICardProps) {
                             }
                         </View>
                     </View>
-                </View>
-                <View style={{ position: 'absolute', right: 10, top: 10 }}>
-                    <Feather name='bookmark' size={30} color="#000000" />
-                </View>
+                </Pressable>
+                {
+                    List.includes(companyData._id) ?
+                        <Pressable onPress={handleRemoveClick} style={{ position: 'absolute', right: 10, top: 10 }}>
+                            <Ionicons name='bookmark' size={28} color="#000000" />
+                        </Pressable>
+                        :
+                        <Pressable onPress={handleSaveClick} style={{ position: 'absolute', right: 10, top: 10 }}>
+                            <Ionicons name='bookmark-outline' size={28} color="#000000" />
+                        </Pressable>
+                }
             </View>
-        </TouchableWithoutFeedback>
+        </View>
     )
 }
 
