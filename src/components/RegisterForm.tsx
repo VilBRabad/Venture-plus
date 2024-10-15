@@ -6,6 +6,7 @@ import axios from 'axios'
 import { useMutation } from '@tanstack/react-query'
 import Snackbar from 'react-native-snackbar'
 import showError from '../utils/ServerErrorSnackbar'
+import Config from 'react-native-config'
 
 type NewUser = {
     name: string;
@@ -14,7 +15,7 @@ type NewUser = {
 }
 
 const addUser = async (user: NewUser) => {
-    return await axios.post("http://192.168.43.37:8000/api/v1/user/register", user);
+    return await axios.post(`${Config.BASE_URL}/api/v1/user/register`, user);
 }
 
 export default function RegisterForm() {

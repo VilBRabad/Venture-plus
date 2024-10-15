@@ -1,44 +1,20 @@
-import { Image, Pressable, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native'
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import FontAwesome from "react-native-vector-icons/FontAwesome"
 import Ionicons from "react-native-vector-icons/Ionicons"
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from '../Navigations/StackNavigation'
-import axios from 'axios'
-import * as Keychain from "react-native-keychain";
-import { useMutation } from '@tanstack/react-query'
 import showError from '../utils/ServerErrorSnackbar'
 import Snackbar from 'react-native-snackbar'
 import { useAppDispatch, useAppSelector } from '../hooks'
 import { setInList, removeFromList } from '../redux/saveList/savelistSlice'
 import { useQueryClient } from '@tanstack/react-query'
+import Config from 'react-native-config'
+import { useAddToSaveList, useRemoveFromSaveList } from '../hooks/userHook'
 
 interface ICardProps {
     companyData: ICompany;
-}
-
-const saveToList = async (company: string) => {
-    const accessToken = await Keychain.getGenericPassword();
-    const res = await axios.post(`http://192.168.43.37:8000/api/v1/user/save-to-list?company=${company}`, {}, {
-        headers: {
-            Authorization: accessToken ? accessToken.password : undefined
-        }
-    });
-
-    return res.data;
-}
-
-
-const removeFromSaveList = async (company: string) => {
-    const accessToken = await Keychain.getGenericPassword();
-    const res = await axios.post(`http://192.168.43.37:8000/api/v1/user/remove-from-list`, { id: company }, {
-        headers: {
-            Authorization: accessToken ? accessToken.password : undefined
-        }
-    });
-
-    return res.data;
 }
 
 
@@ -48,13 +24,8 @@ export default function StartupCard({ companyData }: ICardProps) {
     const dispatch = useAppDispatch();
     const queryClient = useQueryClient();
 
-    const { mutateAsync: addToListMutation } = useMutation({
-        mutationFn: () => saveToList(companyData._id)
-    })
-
-    const { mutateAsync: removeFromListMuatation } = useMutation({
-        mutationFn: () => removeFromSaveList(companyData._id)
-    })
+    const { mutateAsync: addToListMutation } = useAddToSaveList(companyData._id);
+    const { mutateAsync: removeFromListMuatation } = useRemoveFromSaveList(companyData._id);
 
 
     const List = useAppSelector((state) => state.SaveList.list);

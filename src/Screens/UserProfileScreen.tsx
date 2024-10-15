@@ -11,6 +11,8 @@ import { useGetUserQuery } from '../hooks/userHook';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQueryClient } from '@tanstack/react-query';
 import showError from '../utils/ServerErrorSnackbar';
+import { useAppDispatch } from '../hooks';
+import { clearSaveList } from '../redux/saveList/savelistSlice';
 
 const { width, height } = Dimensions.get("window");
 
@@ -22,6 +24,7 @@ export default function UserProfileScreen() {
     const user = data?.user;
     const userProfile = data?.userProfile || undefined;
     const queryClient = useQueryClient();
+    const dispatch = useAppDispatch();
 
 
     const logoutUser = async () => {
@@ -57,6 +60,7 @@ export default function UserProfileScreen() {
         queryClient.removeQueries({ queryKey: ["get-user"] })
         await Keychain.resetGenericPassword();
         await AsyncStorage.removeItem("username");
+        dispatch(clearSaveList());
         navigation.reset({
             index: 0,
             routes: [{ name: "Authentication" }]
@@ -119,7 +123,7 @@ export default function UserProfileScreen() {
                                     </View>
                                     <View style={{ width: 1, backgroundColor: "#606060" }}></View>
                                     <View style={{ alignItems: 'center' }}>
-                                        <Text style={{ fontWeight: 'bold', color: "#AC84FF", fontSize: 15 }}>₹ {userProfile.fundingAmount}</Text>
+                                        <Text style={{ fontWeight: 'bold', color: "#AC84FF", fontSize: 15 }}>$ {Number(userProfile.fundingAmount).toLocaleString()}</Text>
                                         <Text style={{ fontSize: 10, color: "#A0A0A0" }}>Funding Amount</Text>
                                     </View>
                                     <View style={{ width: 1, backgroundColor: "#606060" }}></View>

@@ -9,12 +9,13 @@ import Snackbar from 'react-native-snackbar';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAppDispatch } from '../hooks';
 import { clearSaveList } from '../redux/saveList/savelistSlice';
+import Config from 'react-native-config';
 
 const { width, height } = Dimensions.get("window");
 
 const getSaveListData = async () => {
   const accessToken = await Keychain.getGenericPassword();
-  const res = await axios.get("http://192.168.43.37:8000/api/v1/user/get-save-list-data", {
+  const res = await axios.get(`${Config.BASE_URL}/api/v1/user/get-save-list-data`, {
     headers: {
       Authorization: accessToken ? accessToken.password : undefined
     }
@@ -26,7 +27,7 @@ const getSaveListData = async () => {
 
 const removeAllSaveListItem = async () => {
   const accessToken = await Keychain.getGenericPassword();
-  const res = await axios.post("http://192.168.43.37:8000/api/v1/user/remove-all-from-savelist", {}, {
+  const res = await axios.post(`${Config.BASE_URL}/api/v1/user/remove-all-from-savelist`, {}, {
     headers: {
       Authorization: accessToken ? accessToken.password : undefined
     }
@@ -102,8 +103,8 @@ export default function SaveList() {
                   <Text style={{ fontSize: 40, fontWeight: '600', opacity: 0.3 }}>Not found!</Text>
                 </View>
                 :
-                saveListData && saveListData.map((comp) => (
-                  <View key={comp._id}>
+                saveListData && saveListData.map((comp, ind) => (
+                  <View key={ind}>
                     <StartupCard companyData={comp} />
                   </View>
                 ))

@@ -1,10 +1,11 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+
+import React from 'react';
+import { View, StyleSheet, ScrollView, Text } from 'react-native';
 import Feather from "react-native-vector-icons/Feather"
 
 export default function MailboxScreen() {
     return (
-        <ScrollView style={{ paddingHorizontal: 15 }}>
+        <ScrollView style={{ paddingHorizontal: 15, flex: 1 }}>
             <View style={{ marginVertical: 20, flexDirection: 'row', justifyContent: 'space-between' }}>
                 <Text style={{ color: "#FFFFFF", fontSize: 17, fontWeight: '600' }}>Messages</Text>
                 <Feather name='filter' size={23} color="#FFFFFF" />
@@ -25,8 +26,17 @@ export default function MailboxScreen() {
                     </View>
                 </View>
             </View>
+
         </ScrollView>
     )
 }
 
-const styles = StyleSheet.create({})
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+});
+

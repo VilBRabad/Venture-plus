@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+import Config from "react-native-config";
 import * as Keychain from "react-native-keychain";
 import Snackbar from "react-native-snackbar";
 
@@ -8,7 +9,7 @@ export const getSaveList = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const accessToken = await Keychain.getGenericPassword();
-            const res = await axios.get("http://192.168.43.37:8000/api/v1/user/get-save-list", {
+            const res = await axios.get(`${Config.BASE_URL}/api/v1/user/get-save-list`, {
                 headers: {
                     Authorization: accessToken ? accessToken.password : undefined
                 }
@@ -39,7 +40,7 @@ export const saveListSlice = createSlice({
     initialState,
     reducers: {
         setInList: (state, action) => {
-            console.log(action.payload);
+            // console.log(action.payload);
             state.list.push(action.payload);
         },
         setSaveList: (state, action) => {

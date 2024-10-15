@@ -15,6 +15,7 @@ import {
 } from "@tanstack/react-query"
 import { store } from './redux/store';
 import { Provider } from 'react-redux';
+import { ModalPortal } from "react-native-modals";
 
 
 const queryClient = new QueryClient();
@@ -25,6 +26,7 @@ function App(): React.JSX.Element {
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
         <Navigator />
+        <ModalPortal />
       </Provider>
     </QueryClientProvider>
   );

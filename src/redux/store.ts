@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import saveListSlice from "./saveList/savelistSlice";
+import filterSlice from "./filter/filterSlice";
 
 export const store = configureStore({
     reducer: {
-        SaveList: saveListSlice
+        SaveList: saveListSlice,
+        Filters: filterSlice
     }
 })
 

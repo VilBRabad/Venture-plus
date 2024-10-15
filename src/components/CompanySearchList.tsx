@@ -20,9 +20,9 @@ export default function CompanySearchList({ data }: CompanySearchListProps) {
 
     return (
         <>
-            {data.map(item => (
+            {data.map((item, ind) => (
                 <Pressable
-                    key={item._id}
+                    key={ind}
                     onPress={() => navigation.navigate("StartupProfile", { companyId: item._id })}
                     style={{ paddingVertical: 8, flexDirection: 'row', gap: 10 }}
                 >

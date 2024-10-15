@@ -1,13 +1,15 @@
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import * as Keychain from "react-native-keychain";
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 import StartupCard from './StartupCard';
+import Config from 'react-native-config';
+import { useFocusEffect } from '@react-navigation/native';
 
 const getUserHistory = async (): Promise<ICompany[]> => {
     const accessToken = await Keychain.getGenericPassword();
-    const res = await axios.get("http://192.168.43.37:8000/api/v1/user/get-user-history", {
+    const res = await axios.get(`${Config.BASE_URL}/api/v1/user/get-user-history`, {
         headers: {
             Authorization: accessToken ? accessToken.password : undefined
         }
@@ -18,10 +20,14 @@ const getUserHistory = async (): Promise<ICompany[]> => {
 
 export default function UserHistory() {
 
-    const { data, isLoading, isError, error } = useQuery({
+    const { data, isLoading, isError, error, refetch } = useQuery({
         queryKey: ["user-history"],
         queryFn: getUserHistory
     });
+
+    useFocusEffect(() => {
+        refetch();
+    })
 
 
     return (

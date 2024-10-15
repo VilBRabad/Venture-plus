@@ -1,5 +1,5 @@
 import { Dimensions, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons'
 import AntIcon from "react-native-vector-icons/AntDesign"
 import { useNavigation } from "@react-navigation/native";
@@ -10,10 +10,11 @@ import { useMutation } from '@tanstack/react-query';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Keychain from "react-native-keychain";
 import showError from '../utils/ServerErrorSnackbar';
+import Config from 'react-native-config';
 
 
 const loginUser = async (userCredentials: { email: string, password: string }): Promise<{ user: IUser, token: { accessToken: string, refreshToken: string } }> => {
-    const res = await axios.post("http://192.168.43.37:8000/api/v1/user/login", userCredentials);
+    const res = await axios.post(`${Config.BASE_URL}/api/v1/user/login`, userCredentials);
     return res.data.data;
 }
 
