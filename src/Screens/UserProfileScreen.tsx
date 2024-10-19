@@ -29,7 +29,7 @@ export default function UserProfileScreen() {
 
     const logoutUser = async () => {
         if (!user) {
-            queryClient.removeQueries({ queryKey: ["get-user"] })
+            queryClient.removeQueries({ queryKey: ["get-user", "companies", "messages"] })
             await Keychain.resetGenericPassword();
             await AsyncStorage.removeItem("username");
             navigation.reset({

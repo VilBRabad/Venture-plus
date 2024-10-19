@@ -8,8 +8,9 @@ import MessageScreen from '../Screens/MessageScreen';
 import AuthScreen from '../Screens/AuthScreen';
 import BottomTabNavigation from './BottomTabNavigation';
 import StartupProfileScreen from '../Screens/CompanyProfileScreens.tsx/StartupProfileScreen';
-import TopTabNavigation from './TopTabNavigation';
 import UpdateUserDetailsScreen from '../Screens/UpdateUserDetailsScreen';
+import SendMessageScreen from '../Screens/SendMessageScreen';
+import ShowMessageScreen from '../Screens/ShowMessageScreen';
 
 export type RootStackParamList = {
     Welcome: undefined,
@@ -18,6 +19,8 @@ export type RootStackParamList = {
     HomePage: undefined,
     StartupProfile: { companyId: string },
     UpdateProfile: { user: IUser, userProfile?: IUserProfile }
+    SendMessage: { companyId: string, companyName: string }
+    showMessage: IMessage;
 }
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -37,6 +40,28 @@ export default function Navigator() {
                 <Stack.Screen name='HomePage' component={BottomTabNavigation} options={{ headerShown: false }} />
                 <Stack.Screen name='StartupProfile' component={StartupProfileScreen} options={{ headerShown: false }} />
                 <Stack.Screen name='UpdateProfile' component={UpdateUserDetailsScreen} options={{ headerShown: false }} />
+                <Stack.Screen name='SendMessage' component={SendMessageScreen} options={{
+                    headerShown: true,
+                    title: "Send Message",
+                    headerStyle: {
+                        backgroundColor: "#000000"
+                    },
+                    headerTitleStyle: {
+                        color: "#FFFFFF"
+                    },
+                    headerTintColor: "#FFFFFF"
+                }} />
+                <Stack.Screen name='showMessage' component={ShowMessageScreen} options={{
+                    headerShown: true,
+                    title: "Message",
+                    headerStyle: {
+                        backgroundColor: "#000000"
+                    },
+                    headerTitleStyle: {
+                        color: "#FFFFFF"
+                    },
+                    headerTintColor: "#FFFFFF"
+                }} />
             </Stack.Navigator>
         </NavigationContainer>
     )

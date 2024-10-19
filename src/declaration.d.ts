@@ -62,3 +62,19 @@ interface ISearchCompany {
     logo?: string;
     _id: string
 }
+
+
+interface linkeInterface {
+    title: string;
+    link: string;
+}
+
+interface IMessage {
+    _id: string;
+    sender: string;
+    receiver: string;
+    subject: string;
+    content: string;
+    links: linkeInterface[];
+    createdAt: string;
+}

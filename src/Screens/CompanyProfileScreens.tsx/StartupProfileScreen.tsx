@@ -1,4 +1,4 @@
-import { ActivityIndicator, Dimensions, Image, Pressable, StyleSheet, Text, TouchableNativeFeedback, View } from 'react-native'
+import { ActivityIndicator, Dimensions, Image, Pressable, StyleSheet, Text, TouchableNativeFeedback, TouchableOpacity, View } from 'react-native'
 import React from 'react'
 import Feather from "react-native-vector-icons/Feather";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -91,6 +91,7 @@ export default function StartupProfileScreen({ route }: ProfileProps) {
           isError ?
             <Text style={{ color: "#FFFFFF", textAlign: 'center' }}>{error.message}</Text>
             :
+            data &&
             <>
               <View style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 15, paddingHorizontal: 15 }}>
                 <TouchableNativeFeedback onPress={() => navigation.pop()}>
@@ -135,9 +136,10 @@ export default function StartupProfileScreen({ route }: ProfileProps) {
               <View style={{ flex: 1, marginTop: 10 }}>
                 <TopTabNavigation data={data} />
               </View>
-              <View style={styles.message}>
-                <MaterialIcons name='message' size={28} color="#000000" />
-              </View>
+
+              <TouchableOpacity onPress={() => navigation.push("SendMessage", { companyId: data._id, companyName: data.Company })} style={styles.message}>
+                <MaterialIcons name='message' size={25} color="#000000" />
+              </TouchableOpacity>
             </>
       }
     </View>
@@ -160,8 +162,8 @@ const styles = StyleSheet.create({
   },
   message: {
     position: 'absolute',
-    height: 60,
-    width: 60,
+    height: 55,
+    width: 55,
     backgroundColor: '#FFFFFF',
     right: 15,
     bottom: 30,

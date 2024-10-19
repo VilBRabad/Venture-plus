@@ -87,7 +87,7 @@ export default function StartupCard({ companyData }: ICardProps) {
                         <Text style={{ color: "#000000", fontSize: 15, marginTop: 7, marginBottom: 9, textTransform: "capitalize", fontWeight: '600' }}>{companyData.Industry}</Text>
                         <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
                             {
-                                companyData.Keywords &&
+                                companyData.Keywords && companyData.Keywords.length > 0 &&
                                 (companyData.Keywords?.length >= 4 ?
                                     companyData.Keywords?.slice(0, 4).map((keyword, ind) => (
                                         <View key={ind} style={styles.categoryContainer}>
@@ -99,7 +99,8 @@ export default function StartupCard({ companyData }: ICardProps) {
                                         <View key={ind} style={styles.categoryContainer}>
                                             <Text style={styles.category}>{keyword}</Text>
                                         </View>
-                                    )))
+                                    ))
+                                )
                             }
                         </View>
                     </View>

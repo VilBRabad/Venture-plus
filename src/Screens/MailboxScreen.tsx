@@ -1,31 +1,61 @@
 
-import React from 'react';
-import { View, StyleSheet, ScrollView, Text } from 'react-native';
+import axios from 'axios';
+import React, { useEffect } from 'react';
+import { View, StyleSheet, ScrollView, Text, ActivityIndicator } from 'react-native';
+import Config from 'react-native-config';
 import Feather from "react-native-vector-icons/Feather"
+import * as Keychain from "react-native-keychain";
+import { useQuery } from '@tanstack/react-query';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../Navigations/StackNavigation';
+import showError from '../utils/ServerErrorSnackbar';
+import MessageCard from '../components/MessageCard';
+
+
+const getAllMessages = async () => {
+    const accessToken = await Keychain.getGenericPassword();
+    const res = await axios.get(`${Config.BASE_URL}/api/v1/user/get-all-messages`, {
+        headers: {
+            "Authorization": accessToken ? accessToken.password : undefined
+        }
+    });
+    return res.data.data.messages as IMessage[];
+}
 
 export default function MailboxScreen() {
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+    const { data, isLoading, isError, error, refetch } = useQuery({
+        queryKey: ["messages"],
+        queryFn: getAllMessages
+    })
+
+
+    if (isError) {
+        navigation.reset({
+            index: 0,
+            routes: [{ name: "Authentication" }]
+        });
+        showError(error);
+    }
+
     return (
         <ScrollView style={{ paddingHorizontal: 15, flex: 1 }}>
             <View style={{ marginVertical: 20, flexDirection: 'row', justifyContent: 'space-between' }}>
                 <Text style={{ color: "#FFFFFF", fontSize: 17, fontWeight: '600' }}>Messages</Text>
                 <Feather name='filter' size={23} color="#FFFFFF" />
             </View>
-            <View style={{ gap: 10, marginTop: 10 }}>
-                <View style={{ padding: 10, width: '100%', backgroundColor: "#AC84FF", borderRadius: 20, position: 'relative' }}>
-                    <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
-                        <Feather name='arrow-up-left' size={23} color="#000000" />
-                        <Text style={{ color: "#000000" }}>Sent</Text>
-                    </View>
-                    <View style={{ marginLeft: 30, position: 'relative', paddingBottom: 14 }}>
-                        <Text style={{ color: "#000000", fontWeight: 'bold' }}>To: RELIANCE PVT. LTD.</Text>
-                        <Text style={{ color: "#000000", fontWeight: '600' }}>Message: Hello their, ...</Text>
-                        <Text style={{ color: "#404040", fontWeight: '600', fontSize: 12, position: 'absolute', right: 10, bottom: 0 }}>13 Jan 2024, 23:45</Text>
-                    </View>
-                    <View style={{ position: "absolute", top: 10, right: 12 }}>
-                        <Feather name='trash' size={20} color="#000000" />
-                    </View>
-                </View>
-            </View>
+            {
+                isLoading ?
+                    <ActivityIndicator size="large" color="#AC84FF" />
+                    :
+                    data && data.length > 0 &&
+                    data.map((message, ind) => (
+                        <View key={ind} style={{ gap: 10, marginTop: 10 }}>
+                            <MessageCard message={message} />
+                        </View>
+                    ))
+            }
 
         </ScrollView>
     )

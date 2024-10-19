@@ -1,4 +1,4 @@
-import { ActivityIndicator, Dimensions, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, Dimensions, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Icon from "react-native-vector-icons/AntDesign"
 import StartupCard from '../components/StartupCard'
@@ -12,14 +12,18 @@ import { BottomModal, SlideAnimation } from "react-native-modals";
 import FilterModal from '../components/FilterModal'
 import LodingAnimate from '../components/LodingAnimate';
 import Config from 'react-native-config';
-
+import * as Keychain from "react-native-keychain";
+import { useFocusEffect } from '@react-navigation/native';
 
 const { height, width } = Dimensions.get("window");
 
 const getCompanies = async (industries: string[], countries: string[], revenue: string): Promise<ICompany[]> => {
-
+    const token = await Keychain.getGenericPassword();
     const res = await axios.get(`${Config.BASE_URL}/api/v1/organization/get-organization`, {
-        params: { industries, countries, revenue }
+        params: { industries, countries, revenue },
+        headers: {
+            'Authorization': token ? `Bearer ${token.password}` : undefined
+        }
     })
     return res.data.data.data;
 }
@@ -81,6 +85,10 @@ export default function HomeScreen() {
         setModalVisibal(false);
     }
 
+    // useFocusEffect(() => {
+    //     refetch();
+    // })
+
     return (
         <>
             <ScrollView
@@ -89,7 +97,7 @@ export default function HomeScreen() {
             >
                 <View style={styles.topHeading}>
                     <Text>Hello, {username ? `${username.split(" ")[0]}` : "their"}!</Text>
-                    <Text style={styles.heading}>Find your dream company</Text>
+                    <Text style={styles.heading}>Find best company to invest</Text>
                 </View>
                 <View style={styles.searchBar}>
                     <Icon name='search1' size={27} color="#999999" style={{ zIndex: 40 }} />
@@ -158,7 +166,9 @@ export default function HomeScreen() {
                                 <View style={{ marginTop: 20, paddingBottom: 15, zIndex: 10 }}>
                                     <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
                                         <Text style={{ color: "#FFFFFF", fontSize: 15 }}>Recommended Companies</Text>
-                                        <Text style={{ color: "#999999", fontSize: 12 }}>View all</Text>
+                                        <Pressable onPress={() => refetch()}>
+                                            <Text style={{ color: "#C0C0C0", fontSize: 12.5 }}>Refresh</Text>
+                                        </Pressable>
                                     </View>
                                     <View style={{ gap: 15, marginTop: 10, zIndex: 5 }}>
                                         {companyData &&

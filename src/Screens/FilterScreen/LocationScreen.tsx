@@ -38,7 +38,7 @@ export default function LocationScreen() {
                 <View style={[styles.input, { borderColor: inputFocus ? "#AC84FF" : "gray" }]}>
                     <TextInput
                         style={{ width: '80%' }}
-                        placeholder="e.g. Financial"
+                        placeholder="e.g. United State"
                         value={inputValue}
                         onChangeText={handleInputChange}
                         onFocus={() => setInputFocus(true)}

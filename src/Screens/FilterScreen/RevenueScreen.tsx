@@ -26,7 +26,7 @@ export default function RevenueScreen() {
                     <Text style={{ color: "#ffffff", fontWeight: '600', fontSize: 15, paddingHorizontal: 10 }}>$</Text>
                     <TextInput
                         style={{ width: '62%' }}
-                        placeholder="e.g. 100000"
+                        placeholder="e.g. 100,000"
                         value={inputValue}
                         keyboardType='numeric'
                         onChangeText={setInputValue}

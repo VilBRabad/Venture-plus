@@ -23,10 +23,10 @@ export default function WelcomeScreen() {
         if (!data) {
             await Keychain.resetGenericPassword();
             await AsyncStorage.removeItem("username");
-            Snackbar.show({
-                text: "Session expire please login again",
-                backgroundColor: "#ff0000"
-            })
+            // Snackbar.show({
+            //     text: "Session expire please login again",
+            //     backgroundColor: "#ff0000"
+            // })
         }
         else {
             dispatch(setSaveList(data.user.saveList));
