@@ -1,4 +1,4 @@
-import { Dimensions, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Dimensions, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons'
 import AntIcon from "react-native-vector-icons/AntDesign"
@@ -23,6 +23,7 @@ export default function RegisterForm() {
     const [name, setName] = useState<string>("");
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
+    const [isLoding, setLoding] = useState<boolean>(false);
 
 
     const { mutateAsync: registerUser } = useMutation({
@@ -42,14 +43,18 @@ export default function RegisterForm() {
     });
 
     const handleRegister = async () => {
+        if (isLoding) return;
         if (email.trim() === "" || password.trim() === "" || name === "") {
             console.log("error");
             return;
         }
         try {
+            setLoding(true);
             await registerUser({ name, email, password });
         } catch (error) {
             console.log(error);
+        } finally {
+            setLoding(false);
         }
 
     }
@@ -99,7 +104,12 @@ export default function RegisterForm() {
             </View>
             <View style={[styles.button, styles.normalContainer]}>
                 <TouchableOpacity style={styles.submitBtn} onPress={handleRegister}>
-                    <Text style={styles.text}>Sign up</Text>
+                    {
+                        isLoding ?
+                            <ActivityIndicator size="small" color="#000000" />
+                            :
+                            <Text style={styles.text}>Sign up</Text>
+                    }
                 </TouchableOpacity>
             </View>
         </KeyboardAvoidingView>

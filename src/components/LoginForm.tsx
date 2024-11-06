@@ -1,4 +1,4 @@
-import { Dimensions, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Dimensions, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons'
 import AntIcon from "react-native-vector-icons/AntDesign"
@@ -14,7 +14,10 @@ import Config from 'react-native-config';
 
 
 const loginUser = async (userCredentials: { email: string, password: string }): Promise<{ user: IUser, token: { accessToken: string, refreshToken: string } }> => {
+    console.log(Config.BASE_URL);
+    // const res = await axios.post(`${Config.BASE_URL}/api/v1/user/login`, userCredentials);
     const res = await axios.post(`${Config.BASE_URL}/api/v1/user/login`, userCredentials);
+    console.log(res);
     return res.data.data;
 }
 
@@ -24,6 +27,7 @@ export default function LoginForm() {
 
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
+    const [isLoding, setLoding] = useState<boolean>(false);
 
     const [isVisiblePassword, setVisiblePassword] = useState(false);
 
@@ -34,8 +38,11 @@ export default function LoginForm() {
 
 
     const loginHandler = async () => {
+        if (isLoding) return;
         try {
+            setLoding(true);
             const data = await mutateAsync();
+            console.log("Data", data);
             if (data) {
                 await AsyncStorage.setItem("username", data.user.name);
                 await Keychain.setGenericPassword("accessToken", `${data.token.accessToken}`);
@@ -45,7 +52,10 @@ export default function LoginForm() {
                 })
             }
         } catch (error) {
+            console.log(error);
             showError(error as Error);
+        } finally {
+            setLoding(false);
         }
     }
 
@@ -101,7 +111,12 @@ export default function LoginForm() {
             </View>
             <View style={[styles.button, styles.normalContainer]}>
                 <TouchableOpacity style={[styles.submitBtn, { backgroundColor: "#AC84FF" }]} onPress={loginHandler}>
-                    <Text style={styles.text}>Log in</Text>
+                    {
+                        isLoding ?
+                            <ActivityIndicator size="small" color="#000000" />
+                            :
+                            <Text style={styles.text}>Log in</Text>
+                    }
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.submitBtn, { marginBottom: 10, borderWidth: 2, borderColor: "#AC84FF" }]} onPress={() =>
                     navigation.reset({

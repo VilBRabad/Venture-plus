@@ -1,4 +1,4 @@
-import { KeyboardAvoidingView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, KeyboardAvoidingView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import { RouteProp, useNavigation } from '@react-navigation/native'
 import { RootStackParamList } from '../Navigations/StackNavigation'
@@ -41,6 +41,7 @@ export default function SendMessageScreen({ route }: SendMessageScreenProps) {
     const [message, setMessage] = useState<string>("");
     const [subject, setSubject] = useState<string>("");
     const queryClient = useQueryClient();
+    const [isLoding, setLoding] = useState<boolean>(false);
 
     const { mutateAsync } = useMutation({
         mutationFn: () => sendMessage(message, subject, attachedLinks, route.params.companyName)
@@ -72,7 +73,9 @@ export default function SendMessageScreen({ route }: SendMessageScreenProps) {
     }
 
     const sendMessageMutate = async () => {
+        if (isLoding) return;
         try {
+            setLoding(true);
             await mutateAsync();
             navigation.pop();
             Snackbar.show({
@@ -82,6 +85,8 @@ export default function SendMessageScreen({ route }: SendMessageScreenProps) {
             queryClient.invalidateQueries({ queryKey: ["messages"] })
         } catch (error) {
             showError(error as Error);
+        } finally {
+            setLoding(false);
         }
     }
 
@@ -139,7 +144,7 @@ export default function SendMessageScreen({ route }: SendMessageScreenProps) {
                         <TouchableOpacity onPress={() => setAddLinkVisible(false)} style={{ borderWidth: 0.4, borderColor: 'red', paddingHorizontal: 13, borderRadius: 5, justifyContent: 'center', alignItems: 'center' }}>
                             <Text style={{ color: "#FFFFFF" }}>Cancel</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={addIntoLinksList} style={{ backgroundColor: "#606060", paddingHorizontal: 13, borderRadius: 5, justifyContent: 'center', alignItems: 'center' }}>
+                        <TouchableOpacity onPress={addIntoLinksList} style={{ backgroundColor: `${!linkTitle || !link ? "#606060" : "#AC84FF"}`, paddingHorizontal: 13, borderRadius: 5, justifyContent: 'center', alignItems: 'center' }}>
                             <Text style={{ color: "#FFFFFF" }}>Add</Text>
                         </TouchableOpacity>
                     </View>
@@ -162,8 +167,15 @@ export default function SendMessageScreen({ route }: SendMessageScreenProps) {
                 </View>
             </ScrollView>
             <TouchableOpacity onPress={sendMessageMutate} style={{ paddingVertical: 10, backgroundColor: "#AC84FF", marginBottom: 10, justifyContent: 'center', alignItems: "center", borderRadius: 10, flexDirection: 'row', gap: 10 }}>
-                <FontAwesome name='send' color="#000000" size={18} />
-                <Text style={{ color: "#000000", fontSize: 15, fontWeight: '600' }}>Send</Text>
+                {
+                    isLoding ?
+                        <ActivityIndicator size="small" color="#000000" />
+                        :
+                        <>
+                            <FontAwesome name='send' color="#000000" size={18} />
+                            <Text style={{ color: "#000000", fontSize: 15, fontWeight: '600' }}>Send</Text>
+                        </>
+                }
             </TouchableOpacity>
         </KeyboardAvoidingView>
     )
