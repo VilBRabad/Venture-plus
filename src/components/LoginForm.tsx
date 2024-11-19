@@ -14,10 +14,10 @@ import Config from 'react-native-config';
 
 
 const loginUser = async (userCredentials: { email: string, password: string }): Promise<{ user: IUser, token: { accessToken: string, refreshToken: string } }> => {
-    console.log(Config.BASE_URL);
+    // console.log(Config.BASE_URL);
     // const res = await axios.post(`${Config.BASE_URL}/api/v1/user/login`, userCredentials);
     const res = await axios.post(`${Config.BASE_URL}/api/v1/user/login`, userCredentials);
-    console.log(res);
+    // console.log(res);
     return res.data.data;
 }
 
@@ -42,7 +42,7 @@ export default function LoginForm() {
         try {
             setLoding(true);
             const data = await mutateAsync();
-            console.log("Data", data);
+            // console.log("Data", data);
             if (data) {
                 await AsyncStorage.setItem("username", data.user.name);
                 await Keychain.setGenericPassword("accessToken", `${data.token.accessToken}`);
@@ -52,7 +52,7 @@ export default function LoginForm() {
                 })
             }
         } catch (error) {
-            console.log(error);
+            // console.log(error);
             showError(error as Error);
         } finally {
             setLoding(false);

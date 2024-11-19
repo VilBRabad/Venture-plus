@@ -33,7 +33,7 @@ export default function AuthScreen() {
             <View style={[styles.formContainer, styles.normalContainer]}>
                 <Text style={styles.headText}>Login or</Text>
                 <Text style={[styles.headText, { marginBottom: 8 }]}>Sign Up Today</Text>
-                <Text style={styles.smallText}>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Magni harum iusto.</Text>
+                <Text style={styles.smallText}>We value your privacy and never share your data.</Text>
                 <View style={styles.btnContainer}>
                     <TouchableWithoutFeedback>
                         <AuthHeaderPage title='Log in' backgroundColor={loginBgInterpolate} textColor={loginTextInterpolate} />

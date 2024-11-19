@@ -1,12 +1,11 @@
 
 import axios from 'axios';
-import React, { useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Text, ActivityIndicator } from 'react-native';
+import React from 'react';
+import { View, ScrollView, Text, ActivityIndicator, Dimensions } from 'react-native';
 import Config from 'react-native-config';
-import Feather from "react-native-vector-icons/Feather"
 import * as Keychain from "react-native-keychain";
 import { useQuery } from '@tanstack/react-query';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../Navigations/StackNavigation';
 import showError from '../utils/ServerErrorSnackbar';
@@ -22,6 +21,8 @@ const getAllMessages = async () => {
     });
     return res.data.data.messages as IMessage[];
 }
+
+const { height } = Dimensions.get("window");
 
 export default function MailboxScreen() {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -40,33 +41,27 @@ export default function MailboxScreen() {
     }
 
     return (
-        <ScrollView style={{ paddingHorizontal: 15, flex: 1 }}>
+        <ScrollView style={{ paddingHorizontal: 15, flex: 1, minHeight: height }}>
             <View style={{ marginVertical: 20, flexDirection: 'row', justifyContent: 'space-between' }}>
                 <Text style={{ color: "#FFFFFF", fontSize: 17, fontWeight: '600' }}>Messages</Text>
-                <Feather name='filter' size={23} color="#FFFFFF" />
+                {/* <Feather name='filter' size={23} color="#FFFFFF" /> */}
             </View>
             {
                 isLoading ?
                     <ActivityIndicator size="large" color="#AC84FF" />
                     :
-                    data && data.length > 0 &&
-                    data.map((message, ind) => (
-                        <View key={ind} style={{ gap: 10, marginTop: 10 }}>
-                            <MessageCard message={message} />
+                    data && data.length > 0 ?
+                        data.map((message, ind) => (
+                            <View key={ind} style={{ gap: 10, marginTop: 10 }}>
+                                <MessageCard message={message} />
+                            </View>
+                        ))
+                        :
+                        <View style={{ height: 660, width: "100%", justifyContent: 'center', alignItems: 'center' }}>
+                            <Text>No Messages</Text>
                         </View>
-                    ))
             }
 
         </ScrollView>
     )
 }
-
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-});
-

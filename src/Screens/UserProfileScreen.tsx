@@ -91,7 +91,7 @@ export default function UserProfileScreen() {
                         <View style={{ alignItems: 'center', marginTop: -60, width }}>
                             <View style={styles.profileImage}>
                                 <Image
-                                    source={{ uri: "https://t4.ftcdn.net/jpg/03/64/21/11/360_F_364211147_1qgLVxv1Tcq0Ohz3FawUfrtONzz8nq3e.jpg" }}
+                                    source={{ uri: "https://cdn-icons-png.flaticon.com/512/149/149071.png" }}
                                     style={{ height: '100%', width: '100%' }}
                                 />
                                 {/* <Feather name='camera' color="#000000" size={35} /> */}
@@ -144,7 +144,7 @@ export default function UserProfileScreen() {
                                         <Text style={{ marginBottom: 10, marginTop: -8, textAlign: 'center', color: "#FFFFFF", fontWeight: '600' }}>based recommendation feature.</Text>
                                     </View>
                                     <Pressable onPress={navigateToUpdateProfile} style={{ paddingVertical: 10, paddingHorizontal: 20, backgroundColor: "#AC84FF", borderRadius: 100 }}>
-                                        <Text style={{ color: "#000000", fontWeight: '600' }}>Complet Now</Text>
+                                        <Text style={{ color: "#000000", fontWeight: '600' }}>Complete Now</Text>
                                     </Pressable>
                                 </View>
                         }

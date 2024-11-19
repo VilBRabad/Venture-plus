@@ -13,19 +13,18 @@ import FilterModal from '../components/FilterModal'
 import LodingAnimate from '../components/LodingAnimate';
 import Config from 'react-native-config';
 import * as Keychain from "react-native-keychain";
-import { useFocusEffect } from '@react-navigation/native';
 
 const { height, width } = Dimensions.get("window");
 
-const getCompanies = async (industries: string[], countries: string[], revenue: string): Promise<ICompany[]> => {
+const getCompanies = async (industries: string[], countries: string[], revenue: string, page: number): Promise<{ data: ICompany[], totalPages: number }> => {
     const token = await Keychain.getGenericPassword();
     const res = await axios.get(`${Config.BASE_URL}/api/v1/organization/get-organization`, {
-        params: { industries, countries, revenue },
+        params: { industries, countries, revenue, page },
         headers: {
             'Authorization': token ? `Bearer ${token.password}` : undefined
         }
     })
-    return res.data.data.data;
+    return res.data.data;
 }
 
 const getCompaniesNames = async (search: string): Promise<ISearchCompany[]> => {
@@ -39,6 +38,7 @@ export default function HomeScreen() {
     const [isInputFocus, setInputFocus] = useState<boolean>(false);
     const [username, setUserName] = useState<string>("");
     const [modalVisible, setModalVisibal] = useState<boolean>(false);
+    const [pageNumber, setPageNumber] = useState<number>(1);
     const data = useAppSelector((state) => state.Filters);
     const industries = data.industries || [];
     const countries = data.locations || [];
@@ -49,10 +49,11 @@ export default function HomeScreen() {
         error: companyError,
         isLoading: companyLoading,
         isError: companyIsError,
-        refetch
+        refetch,
+        isFetching
     } = useQuery({
         queryKey: ["companies"],
-        queryFn: () => getCompanies(industries, countries, revenue)
+        queryFn: () => getCompanies(industries, countries, revenue, pageNumber)
     })
 
 
@@ -62,9 +63,7 @@ export default function HomeScreen() {
 
     const {
         data: searchData,
-        error: searchError,
         isLoading: searchLoding,
-        isError: searchIsError
     } = useQuery({
         queryKey: ["searchCompany", , searchItem],
         queryFn: () => getCompaniesNames(searchItem),
@@ -85,9 +84,21 @@ export default function HomeScreen() {
         setModalVisibal(false);
     }
 
-    // useFocusEffect(() => {
-    //     refetch();
-    // })
+    const goToNextPage = () => {
+        if (pageNumber !== companyData?.totalPages) {
+            setPageNumber(pre => pre + 1);
+        }
+    }
+
+    const goToPreviousPage = () => {
+        if (pageNumber !== 1) {
+            setPageNumber(pre => pre - 1);
+        }
+    }
+
+    useEffect(() => {
+        refetch();
+    }, [pageNumber]);
 
     return (
         <>
@@ -149,7 +160,7 @@ export default function HomeScreen() {
                     }
                 </View>
                 {
-                    companyLoading ?
+                    companyLoading || isFetching ?
                         <View style={{ height: 600, alignItems: 'center', justifyContent: 'center' }}>
                             <LodingAnimate />
                         </View>
@@ -171,8 +182,8 @@ export default function HomeScreen() {
                                         </Pressable>
                                     </View>
                                     <View style={{ gap: 15, marginTop: 10, zIndex: 5 }}>
-                                        {companyData &&
-                                            companyData.map((comp, ind) => (
+                                        {companyData && companyData.data &&
+                                            companyData.data.map((comp, ind) => (
                                                 <View key={ind}>
                                                     <StartupCard companyData={comp} />
                                                 </View>
@@ -182,6 +193,31 @@ export default function HomeScreen() {
                                 </View>
                         )
                 }
+                {
+                    companyData && !companyLoading && !isFetching &&
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            gap: 2,
+                            marginBottom: 15,
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                        }}
+                    >
+                        <Pressable onPress={goToPreviousPage} style={{ flexDirection: 'row', gap: 3, justifyContent: 'center', alignItems: 'center' }}>
+                            <Icon name='left' size={18} color="#AC84FF" style={{ opacity: pageNumber == 1 ? 0.6 : 1 }} />
+                            <Text style={{ color: '#AC84FF', fontWeight: 'bold', opacity: pageNumber == 1 ? 0.6 : 1 }}>Previous</Text>
+                        </Pressable>
+                        <Pressable onPress={() => pageNumber !== 1 && setPageNumber(1)}>
+                            <Icon name='home' size={23} color="#AC84FF" style={{ opacity: pageNumber == 1 ? 0 : 1 }} />
+                        </Pressable>
+                        <Pressable onPress={goToNextPage} style={{ flexDirection: 'row', gap: 3, justifyContent: 'center', alignItems: 'center' }}>
+                            <Text style={{ color: '#AC84FF', fontWeight: 'bold', opacity: pageNumber === companyData.totalPages ? 0.6 : 1 }}>Next</Text>
+                            <Icon name='right' size={18} color="#AC84FF" style={{ opacity: pageNumber === companyData.totalPages ? 0.6 : 1 }} />
+                        </Pressable>
+                    </View>
+                }
+
             </ScrollView >
             <BottomModal
                 visible={modalVisible}

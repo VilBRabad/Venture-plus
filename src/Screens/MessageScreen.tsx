@@ -18,7 +18,7 @@ export default function MessageScreen() {
                     <Text style={styles.descText}>Became</Text>
                     <Text style={styles.descText}>Gretest Investor</Text>
                 </View>
-                <Text style={styles.smallText}>Lorem Ipsum is simply dummy text of the printing and typesetting </Text>
+                {/* <Text style={styles.smallText}>Lorem Ipsum is simply dummy text of the printing and typesetting </Text> */}
             </View>
             <View style={{ width: "100%", alignItems: 'center', justifyContent: 'center', height: '15%', flexDirection: 'row', gap: 10 }}>
                 <TouchableOpacity style={styles.btn} onPress={() => navigation.pop()}>

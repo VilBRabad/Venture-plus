@@ -54,7 +54,7 @@ export default function WelcomeScreen() {
                     <Text style={styles.descText}>Welcome to</Text>
                     <Text style={styles.descText}>Your Investment Guid</Text>
                 </View>
-                <Text style={styles.smallText}>Lorem Ipsum is simply dummy text of the printing and typesetting </Text>
+                {/* <Text style={styles.smallText}>Lorem Ipsum is simply dummy text of the printing and typesetting </Text> */}
             </View>
             <View style={{ width: "100%", alignItems: 'center', justifyContent: 'center', height: '15%' }}>
                 <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate("Message")}>

@@ -1,4 +1,4 @@
-import { ActivityIndicator, Dimensions, FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Dimensions, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react'
 import Feather from 'react-native-vector-icons/Feather'
 import Entypo from 'react-native-vector-icons/Entypo'
@@ -224,7 +224,7 @@ export default function UpdateUserDetailsScreen({ route }: UpdateUserDetailsScre
                                         borderRadius: 20,
                                         height: 47,
                                         zIndex: 15,
-                                        width: '90%',
+                                        width: '80%',
                                         backgroundColor: '#000000'
                                     }}
                                     placeholder='ex. Cyber Security'
@@ -233,7 +233,7 @@ export default function UpdateUserDetailsScreen({ route }: UpdateUserDetailsScre
                                     value={searchText}
                                     onChangeText={handleChangeText}
                                 />
-                                <Pressable style={{ height: '100%', justifyContent: 'center', zIndex: 15 }} onPress={handleAddIndustry}>
+                                <Pressable style={{ height: '100%', justifyContent: 'center', zIndex: 15, paddingHorizontal: 2}} onPress={handleAddIndustry}>
                                     <Text style={{ color: isValid ? "#AC84FF" : "#909090", fontWeight: "600" }}>ADD</Text>
                                 </Pressable>
                             </View>
