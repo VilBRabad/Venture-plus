@@ -5,12 +5,14 @@ import StartupSocilaMediaScreen from "../Screens/CompanyProfileScreens.tsx/Start
 import { Text } from 'react-native';
 import StartupFinancialScreen from '../Screens/CompanyProfileScreens.tsx/StartupFinancialScreen';
 import TechnologyScreen from '../Screens/CompanyProfileScreens.tsx/TechnologyScreen';
+import StartupReviewScreen from '../Screens/CompanyProfileScreens.tsx/StartupReviewScreen';
 
 export type RootTopTabParamList = {
     General: { data: ICompany };
     Contact: { data: ICompany };
     Financial: { data: ICompany };
     Technology: { data: string[] };
+    Reviews: { data: string };
 }
 
 const TopTab = createMaterialTopTabNavigator<RootTopTabParamList>();
@@ -23,10 +25,20 @@ export default function TopTabNavigation({ data }: TopTabNavProps) {
     return (
         <TopTab.Navigator
             screenOptions={{
-                tabBarStyle: { backgroundColor: "#000000" },
-                tabBarLabelStyle: { color: '#ffffff', fontSize: 12 },
-                tabBarIndicatorStyle: { backgroundColor: '#AC84FF', justifyContent: 'center' },
-                tabBarItemStyle: { width: 100 }, // Adjust the width
+                tabBarStyle: {
+                    backgroundColor: "#000000",
+                },
+                tabBarLabelStyle: {
+                    color: '#ffffff',
+                    fontSize: 12,
+                },
+                tabBarIndicatorStyle: {
+                    backgroundColor: '#AC84FF',
+                },
+                tabBarScrollEnabled: true,
+                tabBarItemStyle: {
+                    width: 120,
+                },
             }}
         >
             <TopTab.Screen
@@ -72,6 +84,17 @@ export default function TopTabNavigation({ data }: TopTabNavProps) {
                     ),
                 }}
                 children={() => <TechnologyScreen data={data?.Technologies} />}
+            />
+            <TopTab.Screen
+                name="Reviews"
+                options={{
+                    tabBarLabel: ({ focused }) => (
+                        <Text numberOfLines={1} style={{ color: focused ? '#ffffff' : '#C0C0C0' }}>
+                            Reviews
+                        </Text>
+                    ),
+                }}
+                children={() => <StartupReviewScreen data={data?._id} />}
             />
         </TopTab.Navigator>
 

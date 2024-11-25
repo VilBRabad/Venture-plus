@@ -52,7 +52,7 @@ export default function WelcomeScreen() {
                 <Image style={styles.image} source={welcomeImage} />
                 <View style={{ marginVertical: 10, alignItems: 'center' }}>
                     <Text style={styles.descText}>Welcome to</Text>
-                    <Text style={styles.descText}>Your Investment Guid</Text>
+                    <Text style={styles.descText}>Your Investment Guide</Text>
                 </View>
                 {/* <Text style={styles.smallText}>Lorem Ipsum is simply dummy text of the printing and typesetting </Text> */}
             </View>

@@ -233,7 +233,7 @@ export default function UpdateUserDetailsScreen({ route }: UpdateUserDetailsScre
                                     value={searchText}
                                     onChangeText={handleChangeText}
                                 />
-                                <Pressable style={{ height: '100%', justifyContent: 'center', zIndex: 15, paddingHorizontal: 2}} onPress={handleAddIndustry}>
+                                <Pressable style={{ height: '100%', justifyContent: 'center', zIndex: 15, paddingHorizontal: 2 }} onPress={handleAddIndustry}>
                                     <Text style={{ color: isValid ? "#AC84FF" : "#909090", fontWeight: "600" }}>ADD</Text>
                                 </Pressable>
                             </View>
@@ -304,7 +304,7 @@ export default function UpdateUserDetailsScreen({ route }: UpdateUserDetailsScre
                             )}
                         </View>
                         <View style={[styles.inputConatiner, { zIndex: 0 }]}>
-                            <Text style={styles.label}>Funding Amount:</Text>
+                            <Text style={styles.label}>Funding Amount ($):</Text>
                             <TextInput
                                 style={[styles.input, {
                                     borderColor: inputFocus === '5' ? "#AC84FF" : "#909090"

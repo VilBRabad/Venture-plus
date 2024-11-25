@@ -60,7 +60,7 @@ export default function RegisterForm() {
     }
 
     return (
-        <KeyboardAvoidingView style={{ width: Dimensions.get('window').width }}>
+        <KeyboardAvoidingView style={{ width: Dimensions.get('window').width, marginTop: 40, minHeight: 100, maxHeight: 500, height: 460, justifyContent: 'space-between' }}>
             <View style={{ alignItems: 'center', justifyContent: 'center', gap: 18 }}>
                 <TextInput
                     placeholder='Enter name'
@@ -86,7 +86,7 @@ export default function RegisterForm() {
                     onChangeText={setPassword}
                 />
             </View>
-            <View style={{ marginTop: 30, width: '98%', bottom: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+            {/* <View style={{ marginTop: 30, width: '98%', bottom: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
                 <View style={{ height: 1, width: '40%', backgroundColor: "#AC84FF" }}></View>
                 <Text style={{ color: "#AC84FF", fontWeight: 'thin' }}>Or</Text>
                 <View style={{ height: 1, width: '40%', backgroundColor: "#AC84FF" }}></View>
@@ -101,7 +101,7 @@ export default function RegisterForm() {
                 <TouchableOpacity style={styles.iconContainer}>
                     <AntIcon name='apple-o' size={28} color="#AC84FF" />
                 </TouchableOpacity>
-            </View>
+            </View> */}
             <View style={[styles.button, styles.normalContainer]}>
                 <TouchableOpacity style={styles.submitBtn} onPress={handleRegister}>
                     {
