@@ -58,7 +58,8 @@ export default function UserProfileScreen() {
 
 
     const handleLogout = async () => {
-        queryClient.removeQueries({ queryKey: ["get-user"] })
+        await queryClient.removeQueries({ queryKey: ["get-user"] });
+        queryClient.getQueryCache().clear();
         await Keychain.resetGenericPassword();
         await AsyncStorage.removeItem("username");
         dispatch(clearSaveList());

@@ -7,7 +7,6 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from '../Navigations/StackNavigation';
 import * as Keychain from "react-native-keychain";
 import { useGetUserQuery } from '../hooks/userHook';
-import Snackbar from 'react-native-snackbar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setSaveList } from '../redux/saveList/savelistSlice';
 import { useAppDispatch } from '../hooks';
@@ -17,10 +16,10 @@ export default function WelcomeScreen() {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
     const dispatch = useAppDispatch();
-    const { data, isLoading } = useGetUserQuery();
+    const { data, isLoading, isError } = useGetUserQuery();
 
     const checkUser = async () => {
-        if (!data) {
+        if (!data || isError) {
             await Keychain.resetGenericPassword();
             await AsyncStorage.removeItem("username");
             // Snackbar.show({
