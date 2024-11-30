@@ -11,6 +11,7 @@ import StartupProfileScreen from '../Screens/CompanyProfileScreens.tsx/StartupPr
 import UpdateUserDetailsScreen from '../Screens/UpdateUserDetailsScreen';
 import SendMessageScreen from '../Screens/SendMessageScreen';
 import ShowMessageScreen from '../Screens/ShowMessageScreen';
+import AppFeedbackScreen from '../Screens/AppFeedbackScreen';
 
 export type RootStackParamList = {
     Welcome: undefined,
@@ -21,6 +22,7 @@ export type RootStackParamList = {
     UpdateProfile: { user: IUser, userProfile?: IUserProfile }
     SendMessage: { companyId: string, companyName: string }
     showMessage: IMessage;
+    AppFeedback: undefined;
 }
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -54,6 +56,18 @@ export default function Navigator() {
                 <Stack.Screen name='showMessage' component={ShowMessageScreen} options={{
                     headerShown: true,
                     title: "Message",
+                    headerStyle: {
+                        backgroundColor: "#000000"
+                    },
+                    headerTitleStyle: {
+                        color: "#FFFFFF"
+                    },
+                    headerTintColor: "#FFFFFF"
+                }} />
+
+                <Stack.Screen name='AppFeedback' component={AppFeedbackScreen} options={{
+                    headerShown: true,
+                    title: "Give feedback",
                     headerStyle: {
                         backgroundColor: "#000000"
                     },

@@ -1,7 +1,5 @@
 import { ActivityIndicator, Dimensions, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons'
-import AntIcon from "react-native-vector-icons/AntDesign"
+import React, { useState } from 'react'
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from '../Navigations/StackNavigation';
@@ -11,6 +9,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Keychain from "react-native-keychain";
 import showError from '../utils/ServerErrorSnackbar';
 import Config from 'react-native-config';
+import { useAppDispatch } from '../hooks';
+import { setSaveList } from '../redux/saveList/savelistSlice';
 
 
 const loginUser = async (userCredentials: { email: string, password: string }): Promise<{ user: IUser, token: { accessToken: string, refreshToken: string } }> => {
@@ -28,6 +28,7 @@ export default function LoginForm() {
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [isLoding, setLoding] = useState<boolean>(false);
+    const dispatch = useAppDispatch();
 
     const [isVisiblePassword, setVisiblePassword] = useState(false);
 
@@ -42,8 +43,9 @@ export default function LoginForm() {
         try {
             setLoding(true);
             const data = await mutateAsync();
-            // console.log("Data", data);
+            // console.log("####Data: ", data.user.saveList);
             if (data) {
+                dispatch(setSaveList(data.user.saveList));
                 await AsyncStorage.setItem("username", data.user.name);
                 await Keychain.setGenericPassword("accessToken", `${data.token.accessToken}`);
                 navigation.reset({
@@ -60,7 +62,7 @@ export default function LoginForm() {
     }
 
     return (
-        <View style={{ width: Dimensions.get('window').width, paddingTop: 45 }}>
+        <View style={{ width: Dimensions.get('window').width, paddingTop: 45, justifyContent: 'space-between', height: "100%" }}>
             <View style={{ alignItems: 'center', justifyContent: 'center', gap: 18 }}>
                 <TextInput
                     placeholder='E-mail address'
@@ -93,13 +95,13 @@ export default function LoginForm() {
                     }
                 </View>
             </View>
-            <View style={{ marginTop: 50, width: '98%', bottom: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+            {/* <View style={{ marginTop: 50, width: '98%', bottom: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
                 <View style={{ height: 1, width: '40%', backgroundColor: "#AC84FF" }}></View>
                 <Text style={{ color: "#AC84FF", fontWeight: 'thin' }}>Or</Text>
                 <View style={{ height: 1, width: '40%', backgroundColor: "#AC84FF" }}></View>
-            </View>
+            </View> */}
             <View style={[styles.oauthContainer, styles.normalContainer]}>
-                <TouchableOpacity style={styles.iconContainer}>
+                {/* <TouchableOpacity style={styles.iconContainer}>
                     <SimpleLineIcons name='social-google' size={28} color="#AC84FF" />
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.iconContainer}>
@@ -107,7 +109,7 @@ export default function LoginForm() {
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.iconContainer}>
                     <AntIcon name='apple-o' size={28} color="#AC84FF" />
-                </TouchableOpacity>
+                </TouchableOpacity> */}
             </View>
             <View style={[styles.button, styles.normalContainer]}>
                 <TouchableOpacity style={[styles.submitBtn, { backgroundColor: "#AC84FF" }]} onPress={loginHandler}>

@@ -101,11 +101,11 @@ export default function StartupProfileScreen({ route }: ProfileProps) {
                 {
                   isInSaveList() ?
                     <Pressable onPress={handleRemoveFromSaveList} >
-                      <Ionicons name='bookmark' size={25} />
+                      <Ionicons name='bookmark' size={25} color={"#FFFFFF"} />
                     </Pressable>
                     :
                     <Pressable onPress={handleAddToSaveList} >
-                      <Ionicons name='bookmark-outline' size={25} />
+                      <Ionicons name='bookmark-outline' size={25} color={"#FFFFFF"} />
                     </Pressable>
                 }
               </View>

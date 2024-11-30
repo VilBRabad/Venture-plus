@@ -5,6 +5,7 @@ import RegisterForm from '../components/RegisterForm';
 import AuthHeaderPage from '../components/AuthHeaderPage';
 
 
+const { height } = Dimensions.get('window');
 export default function AuthScreen() {
 
     const width = Dimensions.get('window').width;
@@ -51,7 +52,7 @@ export default function AuthScreen() {
                     )}
                 >
                     <LoginForm />
-                    <ScrollView showsVerticalScrollIndicator={false}>
+                    <ScrollView style={{ height: '100%' }} showsVerticalScrollIndicator={false}>
                         <RegisterForm />
                     </ScrollView>
                 </Animated.ScrollView>
@@ -65,7 +66,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#000000",
-        paddingTop: 50
+        paddingTop: 50,
+        height
     },
     normalContainer: {
         alignItems: 'center',

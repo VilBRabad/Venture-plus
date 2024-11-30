@@ -18,6 +18,13 @@ export default function StartupSocilaMediaScreen({ data }: StartupSocilaMediaScr
             {data ?
                 <>
                     <View style={[styles.container, { backgroundColor: '#202020' }]}>
+                        {data.Website && <View style={styles.pairs}>
+                            <Text style={{ color: "#AC84FF", width: '35%' }}>Website: </Text>
+                            <TouchableOpacity onPress={() => navigateToExternalUrl(data.Website || "")} style={{ width: '100%' }}>
+                                <Text style={{ color: "#FFFFFF" }} numberOfLines={3}>{data.Website}</Text>
+                            </TouchableOpacity>
+                        </View>
+                        }
                         {data.Facebook_url && <View style={styles.pairs}>
                             <Text style={{ color: "#AC84FF", width: '35%' }}>Facebook: </Text>
                             <TouchableOpacity onPress={() => navigateToExternalUrl(data.Facebook_url || "")} style={{ width: '100%' }}>
@@ -40,13 +47,13 @@ export default function StartupSocilaMediaScreen({ data }: StartupSocilaMediaScr
                         </View>
                         }
                     </View>
-                    {
+                    {/* {
                         data.Phone_number &&
                         <View style={styles.container}>
                             <Text style={{ color: "#AC84FF", fontWeight: "600" }}>Contact Number</Text>
                             <Text style={{ marginLeft: 10, marginVertical: 20 }}>{data.Phone_number}</Text>
                         </View>
-                    }
+                    } */}
                 </>
                 :
                 <View style={[styles.container, { height: (height - 300), justifyContent: 'center', alignItems: 'center' }]}>

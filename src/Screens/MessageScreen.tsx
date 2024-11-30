@@ -16,7 +16,7 @@ export default function MessageScreen() {
                 <Image style={styles.image} source={welcomeImage} />
                 <View style={{ marginVertical: 10, alignItems: 'center' }}>
                     <Text style={styles.descText}>Become</Text>
-                    <Text style={styles.descText}>Gretest Investor</Text>
+                    <Text style={styles.descText}>Greatest Investor</Text>
                 </View>
                 {/* <Text style={styles.smallText}>Lorem Ipsum is simply dummy text of the printing and typesetting </Text> */}
             </View>

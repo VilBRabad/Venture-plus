@@ -16,7 +16,7 @@ import * as Keychain from "react-native-keychain";
 
 const { height, width } = Dimensions.get("window");
 
-const getCompanies = async (industries: string[], countries: string[], revenue: string, page: number): Promise<{ data: ICompany[], totalPages: number }> => {
+const getCompanies = async (industries: string[], countries: string[], revenue: string, page: number): Promise<{ data: ICompany[], totalPages: number, isRecommendation: boolean }> => {
     const token = await Keychain.getGenericPassword();
     const res = await axios.get(`${Config.BASE_URL}/api/v1/organization/get-organization`, {
         params: { industries, countries, revenue, page },
@@ -176,7 +176,14 @@ export default function HomeScreen() {
                                 :
                                 <View style={{ marginTop: 20, paddingBottom: 15, zIndex: 10 }}>
                                     <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-                                        <Text style={{ color: "#FFFFFF", fontSize: 15 }}>Recommended Companies</Text>
+                                        <Text style={{ color: "#FFFFFF", fontSize: 15 }}>
+                                            {
+                                                companyData && companyData.isRecommendation ?
+                                                    "Recommended Companies"
+                                                    :
+                                                    "Companies"
+                                            }
+                                        </Text>
                                         <Pressable onPress={() => refetch()}>
                                             <Text style={{ color: "#C0C0C0", fontSize: 12.5 }}>Refresh</Text>
                                         </Pressable>

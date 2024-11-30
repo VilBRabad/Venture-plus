@@ -7,7 +7,6 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from '../Navigations/StackNavigation';
 import * as Keychain from "react-native-keychain";
 import { useGetUserQuery } from '../hooks/userHook';
-import Snackbar from 'react-native-snackbar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setSaveList } from '../redux/saveList/savelistSlice';
 import { useAppDispatch } from '../hooks';
@@ -17,10 +16,10 @@ export default function WelcomeScreen() {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
     const dispatch = useAppDispatch();
-    const { data, isLoading } = useGetUserQuery();
+    const { data, isLoading, isError } = useGetUserQuery();
 
     const checkUser = async () => {
-        if (!data) {
+        if (!data || isError) {
             await Keychain.resetGenericPassword();
             await AsyncStorage.removeItem("username");
             // Snackbar.show({
@@ -52,7 +51,7 @@ export default function WelcomeScreen() {
                 <Image style={styles.image} source={welcomeImage} />
                 <View style={{ marginVertical: 10, alignItems: 'center' }}>
                     <Text style={styles.descText}>Welcome to</Text>
-                    <Text style={styles.descText}>Your Investment Guid</Text>
+                    <Text style={styles.descText}>Your Investment Guide</Text>
                 </View>
                 {/* <Text style={styles.smallText}>Lorem Ipsum is simply dummy text of the printing and typesetting </Text> */}
             </View>
